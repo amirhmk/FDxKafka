@@ -1,0 +1,120 @@
+# Default values for foobar-gamestop.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  app:
+    repository: ghcr.io/salcaino/app
+    tag: "latest"
+
+
+containerPort: 8888
+imagePullSecrets: []
+nameOverride: "FDxKafka"
+fullnameOverride: "FDxKafka"
+
+
+#helm install aws-load-balancer-controller eks/aws-load-balancer-controller --set clusterName=my-cluster -n kube-system
+aws-load-balancer-controller:
+  image:
+    tag: v2.0.0
+  clusterName: FDxKafka
+  serviceAccount:
+    create: false
+    name: aws-load-balancer-controller
+
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "service"
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+deployment:
+  name: shortsqueeze-app
+  keyspace: kafkapipeline
+  widetable: wide
+
+producers:
+  finnhub:
+    containername: producer
+    topicname: source
+    sleeptime: 300
+    encoded_token: dG9rZW4K
+
+service:
+  type: NodePort
+  port: 80
+  name: flkafka-service
+
+ingress:
+  enabled: true
+  name: flkafka-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+
+
+kafka:
+  autoCreateTopicsEnable: true
+  service:
+    port: 9092
+  global:
+    storageClass: gp2
+  persistence:
+    storageClass: gp2
+    size: 1Gi
+  zookeeper:
+    service:
+      port: 2181
+    persistence:
+      storageClass: gp2
+      size: 1Gi
+  connect:
+    name: connect
+    port: 8083
+metrics-server:
+  serviceAccount:
+    create: false
+    name: aws-load-balancer-controller
+kubernetes-dashboard:
+  service:
+    type: NodePort
+
+
+jobs:
+    bucket_region: us-east-1
+    crons:
+      "0":
+        name: producer
+        command: "/usr/app/producer.py"
+        schedule: "*/2 * * * *"
+        topicname: source
+        image:
+          repository: ghcr.io/salcaino/fprod
+          tag: "latest"
