@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  labels:
+    app: {{ .Values.deployment.name }}
+    app.kubernetes.io/name: {{ .Values.deployment.name }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployment.name }}
+        app.kubernetes.io/name: {{ .Values.deployment.name }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-front
+          image: "{{ .Values.image.app.repository }}:{{ .Values.image.app.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PROPERTY
+              value: {{ .Release.Name }}
+            
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+---
+
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ .name }}
+  labels:
+    chart: "{{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}"
+    app.kubernetes.io/name: {{ .name }}
+spec:
+  schedule: {{ .schedule | quote }}
+  successfulJobsHistoryLimit: 0 
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ .name }}
+            app.kubernetes.io/name: {{ .name }}
+        spec:       
+          containers:
+          - name: {{ .name }}
+            image: "{{ .image.repository }}:{{ .image.tag }}"
+            imagePullPolicy: {{ $.Values.image.pullPolicy }}
+            env:
+            - name: KAFKA_BROKER_URL
+              value: "{{ $.Release.Name }}-kafka:{{ $.Values.kafka.service.port }}"
+            - name: TOPIC_NAME
+              value: {{ .topicname }}
+            - name: REGION_NAME
+              value: {{ $.Values.producers.jobs.bucket_region }}
+            command: ["python", "-u", "{{ .command}}"]
+          restartPolicy: OnFailure
+---
+{{- end}}
