@@ -130,3 +130,6 @@ dmypy.json
 **/.vscode/*
 .DS_Store
 ec2_key_ML.pem
+
+# Data
+fd_engine/data
