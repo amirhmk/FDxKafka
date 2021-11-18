@@ -1,11 +1,4 @@
 import tensorflow as tf
-import collections
-
-NUM_CLIENTS = 10
-NUM_EPOCHS = 5
-BATCH_SIZE = 20
-SHUFFLE_BUFFER = 100
-PREFETCH_BUFFER = 10
 
 def image_loader(dataset_path, batch_size=32, num_classes=2, image_size=256):
   """
