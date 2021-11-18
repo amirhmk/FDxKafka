@@ -37,7 +37,7 @@ def main():
 
     # Start client
     # TODO: MOdify here to change server address
-    SERVER_ADDRESS = "[::]:8080"
+    SERVER_ADDRESS = "[::]:8081"
     m = model.create_keras_model()
     m.compile("adam", "binary_crossentropy", metrics=["accuracy"])
     DATASET_PATH = "data/train"
