@@ -2,16 +2,17 @@ import flwr as fl
 import tensorflow as tf
 
 import model
+import dataset
 # # import multiprocessing as mp
 # # from flower_helper import train, test
 
 class CifarClient(fl.client.NumPyClient):
     def __init__(self, model, data):
-        model = tf.keras.applications.MobileNetV2((32, 32, 3), classes=10, weights=None)
-        model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
-        self.model = model
+        # model = tf.keras.applications.MobileNetV2((32, 32, 3), classes=10, weights=None)
+        # model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
         self.data = data
-        (self.x_train, self.y_train), (self.x_test, self.y_test) = tf.keras.datasets.cifar10.load_data()
+        self.model = model
+        # (self.x_train, self.y_train), (self.x_test, self.y_test) = tf.keras.datasets.cifar10.load_data()
 
     def get_parameters(self):
         return self.model.get_weights()
@@ -19,13 +20,13 @@ class CifarClient(fl.client.NumPyClient):
     def fit(self, parameters, config):
         # print("nvm it's this one", parameters)
         self.model.set_weights(parameters)
-        self.model.fit(self.x_train, self.y_train, epochs=1, batch_size=32, steps_per_epoch=3)
+        self.model.fit(self.data, epochs=1, batch_size=32, steps_per_epoch=3)
         return self.model.get_weights(), len(self.x_train), {}
 
     def evaluate(self, parameters, config):
         # print("helllo", parameters)
         self.model.set_weights(parameters)
-        loss, accuracy = self.model.evaluate(self.x_test, self.y_test)
+        loss, accuracy = self.model.evaluate(self.data)
         return loss, len(self.x_test), {"accuracy": accuracy}
 
 
@@ -38,7 +39,9 @@ def main():
     # TODO: MOdify here to change server address
     SERVER_ADDRESS = "[::]:8080"
     m = model.create_keras_model()
-    data = None
+    m.compile("adam", "binary_crossentropy", metrics=["accuracy"])
+    DATASET_PATH = "data/train"
+    data = dataset.get_dataset(DATASET_PATH)
     fl.client.start_numpy_client(SERVER_ADDRESS, client=CifarClient(m, data))
 
 
