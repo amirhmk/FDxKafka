@@ -15,13 +15,13 @@ class CifarClient(fl.client.NumPyClient):
     def fit(self, parameters, config):
         self.model.set_weights(parameters)
         self.model.fit(self.data, epochs=1, batch_size=32, steps_per_epoch=3)
-        return self.model.get_weights(), len(self.x_train), {}
+        return self.model.get_weights(), 32, {}
 
     def evaluate(self, parameters, config):
         self.model.set_weights(parameters)
         # TODO: Change to valid data
         loss, accuracy = self.model.evaluate(self.data)
-        return loss, len(self.x_test), {"accuracy": accuracy}
+        return loss, 32, {"accuracy": accuracy}
 
 
 def main():
