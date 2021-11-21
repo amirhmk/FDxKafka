@@ -7,59 +7,59 @@ metadata:
 
 nodeGroups:
   - name: flkafka-group1
-    instanceType: t2.medium
+    instanceType: t2.micro
     desiredCapacity: 3
     maxSize: 5
     volumeSize: 15
     ssh:
       allow: true # will use ~/.ssh/id_rsa.pub as the default ssh key
-    iam:
-      withAddonPolicies:
-        albIngress: true
-        autoScaler: true
-    asgMetricsCollection:
-      - granularity: 1Minute
-        metrics:
-          - GroupMinSize
-          - GroupMaxSize
-          - GroupDesiredCapacity
-          - GroupInServiceInstances
-          - GroupPendingInstances
-          - GroupStandbyInstances
-          - GroupTerminatingInstances
-          - GroupTotalInstances
+#     iam:
+#       withAddonPolicies:
+#         albIngress: true
+#         autoScaler: true
+#     asgMetricsCollection:
+#       - granularity: 1Minute
+#         metrics:
+#           - GroupMinSize
+#           - GroupMaxSize
+#           - GroupDesiredCapacity
+#           - GroupInServiceInstances
+#           - GroupPendingInstances
+#           - GroupStandbyInstances
+#           - GroupTerminatingInstances
+#           - GroupTotalInstances
 
-  - name: flkafka-group2
-    instanceType: t2.medium
-    desiredCapacity: 3
-    maxSize: 5
-    volumeSize: 15
-    ssh:
-      allow: true
-    iam:
-      withAddonPolicies:
-        albIngress: true
-        autoScaler: true
-    asgMetricsCollection:
-      - granularity: 1Minute
-        metrics:
-          - GroupMinSize
-          - GroupMaxSize
-          - GroupDesiredCapacity
-          - GroupInServiceInstances
-          - GroupPendingInstances
-          - GroupStandbyInstances
-          - GroupTerminatingInstances
-          - GroupTotalInstances
-iam:
-  withOIDC: true
-  serviceAccounts:
-  - metadata:
-      name: aws-load-balancer-controller
-    wellKnownPolicies:
-      awsLoadBalancerController: true
-availabilityZones: 
-  - us-east-1a
-  - us-east-1b
-  - us-east-1c
-  - us-east-1d
+#   - name: flkafka-group2
+#     instanceType: t2.micro
+#     desiredCapacity: 3
+#     maxSize: 5
+#     volumeSize: 15
+#     ssh:
+#       allow: true
+#     iam:
+#       withAddonPolicies:
+#         albIngress: true
+#         autoScaler: true
+#     asgMetricsCollection:
+#       - granularity: 1Minute
+#         metrics:
+#           - GroupMinSize
+#           - GroupMaxSize
+#           - GroupDesiredCapacity
+#           - GroupInServiceInstances
+#           - GroupPendingInstances
+#           - GroupStandbyInstances
+#           - GroupTerminatingInstances
+#           - GroupTotalInstances
+# iam:
+#   withOIDC: true
+#   serviceAccounts:
+#   - metadata:
+#       name: aws-load-balancer-controller
+#     wellKnownPolicies:
+#       awsLoadBalancerController: true
+# availabilityZones: 
+#   - us-east-1a
+#   - us-east-1b
+#   - us-east-1c
+#   - us-east-1d

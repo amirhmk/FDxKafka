@@ -50,12 +50,10 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 deployment:
-  name: shortsqueeze-app
-  keyspace: kafkapipeline
-  widetable: wide
-
+  name: app
+  
 producers:
-  finnhub:
+  producer:
     containername: producer
     topicname: source
     sleeptime: 300
@@ -95,9 +93,6 @@ kafka:
     persistence:
       storageClass: gp2
       size: 1Gi
-  connect:
-    name: connect
-    port: 8083
 metrics-server:
   serviceAccount:
     create: false
