@@ -6,16 +6,10 @@ import time
 from datetime import datetime, timedelta
 from kafka import KafkaProducer
 import numpy as np
-import ssl
 
 
 sasl_mechanism = 'PLAIN'
-security_protocol = 'SASL_SSL'
-
-# Create a new context using system defaults, disable all but TLS1.2
-context = ssl.create_default_context()
-context.options &= ssl.OP_NO_TLSv1
-context.options &= ssl.OP_NO_TLSv1_1
+security_protocol = 'SASL_PLAINTEXT'
 
 DEFAULT_TIMEOUT=5000
 SLEEP_TIME = int(os.environ.get("SLEEP_TIME", 300))
@@ -46,31 +40,28 @@ class producer:
                          sasl_plain_username = KAFKA_USERNAME,
                          sasl_plain_password = KAFKA_PASSWORD,
                          security_protocol = security_protocol,
-                         ssl_context = context,
                          sasl_mechanism = sasl_mechanism,
-                         api_version = (0,10),
+                         value_serializer=lambda x: x.encode("utf8"),
+                         api_version=(0, 11, 5),
+                         max_request_size=104857600,
                          retries=5,
                          max_block_ms=DEFAULT_TIMEOUT)
-        # KafkaProducer(
-        #     bootstrap_servers=KAFKA_BROKER_URL,
-        #     value_serializer=lambda x: x.encode("utf8"),
-        #     api_version=(0, 11, 5),
-        # )
 
     def run(self):
         date_to = datetime.utcnow()
-        msg = f"'date': '{date_to}'"
-        print('Sending kafka msg')
-        try:
-            self.producer.send(TOPIC_NAME, value=msg)
-            self.producer.flush()
-            print('Done')
-        except:
-            print("Unexpected error:", sys.exc_info()[0])
-            raise
+        msg = "hello world"
+        print(f'Sending kafka msg to {TOPIC_NAME}')
+        while(True):
+            try:
+                self.producer.send(TOPIC_NAME, value=msg)
+                self.producer.flush()
+                print('Done')
+            except:
+                print("Unexpected error:", sys.exc_info())
+            time.sleep(5)
 
 if __name__ == "__main__":
     print(f"Starting producer for broker at {KAFKA_BROKER_URL}")
     service = producer()
     service.run()
-    time.sleep(10) #adding sleep here just to be able to see the logs after running.
+    # time.sleep(10) #adding sleep here just to be able to see the logs after running.
