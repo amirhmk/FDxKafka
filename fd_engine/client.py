@@ -4,10 +4,22 @@ import tensorflow as tf
 import model
 import dataset
 
+import os
+try:
+    user_paths = os.environ['PYTHONPATH'].split(os.pathsep)
+except KeyError:
+    user_paths = []
+
+print('PYTHONPATH', user_paths, fl.common)
+
 class CifarClient(fl.client.NumPyClient):
     def __init__(self, model, data):
-        self.data = data
         self.model = model
+        self.data = data
+
+    # Not sure why we need this...
+    def get_properties(self, config):
+        return super().get_properties(config)
 
     def get_parameters(self):
         return self.model.get_weights()
@@ -33,7 +45,7 @@ def main():
     DATASET_PATH = "data/train"
     data = dataset.get_dataset(DATASET_PATH)
     # TODO: partition data into train/valid/test
-    fl.client.start_numpy_client(SERVER_ADDRESS, client=CifarClient(m, data))
+    fl.client.start_kafka_client(SERVER_ADDRESS, client=CifarClient(m, data))
 
 
 if __name__ == "__main__":

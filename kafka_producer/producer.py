@@ -8,8 +8,8 @@ import numpy as np
 now = lambda : str(datetime.now())
 
 class MsgSender:
-    def __init__(self):
-        self.init()
+    def __init__(self, server_address, options):
+        self.init(server_address, options)
         self.producer = KafkaProducer(bootstrap_servers = self.KAFKA_BROKER_URL,
                          sasl_plain_username = self.KAFKA_USERNAME,
                          sasl_plain_password = self.KAFKA_PASSWORD,
@@ -26,7 +26,7 @@ class MsgSender:
         if(data is None or data.size <=0):
             print(f"{now} Cant continue with empty data")
             return
-        print(f"{now()} Sending tensor witg {data.size} elements")
+        print(f"{now()} Sending tensor with {data.size} elements")
         msg = data.flatten().tobytes()
         try:
             print(f'{now()} Sending kafka msg to {self.TOPIC_NAME} topic')
@@ -41,7 +41,7 @@ class MsgSender:
         while(True):
             self.sendMsg(msg)    
             time.sleep(5)
-    def init(self):
+    def init(self, server_address, options, verbose=False):
         self.sasl_mechanism = 'PLAIN'
         self.security_protocol = 'SASL_PLAINTEXT'
 
@@ -51,12 +51,12 @@ class MsgSender:
 
         # Kafka producer
         self.KAFKA_BROKER_URL = (
-            os.environ.get("KAFKA_BROKER_URL")
-            if os.environ.get("KAFKA_BROKER_URL")
+            server_address
+            if server_address
             else "localhost:9092"
         )
         self.TOPIC_NAME = (
-            os.environ.get("TOPIC_NAME") if os.environ.get("TOPIC_NAME") else "test"
+            options['topic_name'] if "topic_name" in options else "test"
         )
 
         self.KAFKA_USERNAME = (

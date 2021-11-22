@@ -8,9 +8,9 @@ import numpy as np
 now = lambda : str(datetime.now())
 
 class MsgReceiver(Thread):
-    def __init__(self) -> None:
+    def __init__(self, server_address, options=None) -> None:
         super(MsgReceiver,self).__init__(name='MsgReceiverThread')
-        self.init()
+        self.init(server_address, options)
         print(f"{now()} Setting up Kafka consumer at {self.KAFKA_BROKER_URL}")
         self.consumer = KafkaConsumer(self.TOPIC_NAME, bootstrap_servers=self.KAFKA_BROKER_URL,
                                 sasl_plain_username = self.KAFKA_USERNAME,
@@ -19,7 +19,7 @@ class MsgReceiver(Thread):
                                 sasl_mechanism = self.sasl_mechanism)
         self.q = queue.Queue()
 
-    def init(self, verbose=None):
+    def init(self, server_address, options, verbose=False):
         self.sasl_mechanism = 'PLAIN'
         self.security_protocol = 'SASL_PLAINTEXT'
 
@@ -28,12 +28,12 @@ class MsgReceiver(Thread):
         self.MAX_SIZE = 104857600
 
         self.KAFKA_BROKER_URL = (
-            os.environ.get("KAFKA_BROKER_URL")
-            if os.environ.get("KAFKA_BROKER_URL")
+            server_address
+            if server_address
             else "localhost:9092"
         )
         self.TOPIC_NAME = (
-            os.environ.get("TOPIC_NAME") if os.environ.get("TOPIC_NAME") else "test"
+            options['topic_name'] if "topic_name" in options else "test"
         )
 
         self.KAFKA_USERNAME = (
