@@ -39,7 +39,7 @@ class CifarClient(fl.client.NumPyClient):
 def main():
     """Create model, load data, define Flower client, start Flower client."""
     # Start client
-    SERVER_ADDRESS = "[::]:8081"
+    SERVER_ADDRESS = "10.138.0.6:9092"
     m = model.create_keras_model()
     m.compile("adam", "binary_crossentropy", metrics=["accuracy"])
     DATASET_PATH = "data/train"

@@ -4,10 +4,15 @@ from datetime import datetime
 from threading import Thread
 import queue
 import numpy as np
+import json
+
+import stoppable_thread
+
+KAFKA_MAX_SIZE = 104857600
 
 now = lambda : str(datetime.now())
 
-class MsgReceiver(Thread):
+class MsgReceiver(stoppable_thread.StoppableThread):
     def __init__(self, server_address, options=None) -> None:
         super(MsgReceiver,self).__init__(name='MsgReceiverThread')
         self.init(server_address, options)
@@ -44,26 +49,44 @@ class MsgReceiver(Thread):
         )
 
     def getNextMsg(self, block=True, timeout=None) -> np.ndarray:
+        if self.q.qsize() > 0:
+            return self.q.get(block, timeout)
+        return None
         return self.q.get(block, timeout)
 
     def run(self):
-        print(f'{now()} Waiting for msg...')
-        for msg in self.consumer:
-            # msg = msg.value.decode('utf-8')
-            received = np.frombuffer(msg.value, dtype=float)
-            #gonna have to agree on a size or send it too.
-            received = np.reshape(received, (3,3))
-            print(f"{now()} Message received a {received.shape} array")
-            self.q.put(received)
+        while not self.stopped():
+            for msg in self.consumer:
+                # msg = msg.value.decode('utf-8')
+                # received = np.frombuffer(msg.value, dtype=float)
+                #gonna have to agree on a size or send it too.
+                # received = np.reshape(received, (3,3))
+                # print(f"{now()} Message received a {received.shape} array")
+                self.q.put(msg)
+
+    def close(self):
+        # TODO
+        # stop thread, consumer
+        # self.thread.stop()
+        self.consumer.close()
+        pass
 
 if __name__ == "__main__":
     #start receiver in a new thread
-    receiver = MsgReceiver()
+    receiver = MsgReceiver(
+        '10.138.0.6:9092',
+        options={
+            "max_send_message_length": KAFKA_MAX_SIZE,
+            "max_receive_message_length": KAFKA_MAX_SIZE,
+            "topic_name": 'enginner_x_train'
+        },
+    )
     receiver.start()
 
     #get messages received
     while(True):
         newdata = receiver.getNextMsg(block=True) #blocking or non blocking
-        print(f'{now()} Client received: {newdata}')
+        if newdata:
+            print(f'{now()} Client received: {newdata}')
 
     print("Bye-Bye")
