@@ -3,3 +3,5 @@ matplotlib==3.4.3
 flwr==0.17.0
 pillow==8.4.0
 scipy==1.5.2
+six
+numpy

@@ -1,13 +1,27 @@
 import sys
 import os
 import time
-from datetime import datetime, timedelta
+import json
+from datetime import datetime
 from kafka import KafkaProducer
 import numpy as np
+
 
 now = lambda : str(datetime.now())
 
 KAFKA_MAX_SIZE = 104857600
+
+SERVER_ADDRESS = '10.138.0.6:9092'
+
+import json
+from json import JSONEncoder
+import numpy
+
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
 
 class MsgSender:
     def __init__(self, server_address, options):
@@ -18,7 +32,8 @@ class MsgSender:
                          security_protocol = self.security_protocol,
                          sasl_mechanism = self.sasl_mechanism,
                         #  value_serializer=lambda x: x.encode("utf8"),
-                         value_serializer=lambda x: bytes(str(x), 'utf-8'),
+                        #  value_serializer=lambda x: bytes(str(x), 'utf-8'),
+                         value_serializer=lambda v: json.dumps(v, cls=NumpyArrayEncoder).encode('utf-8'),
                          api_version=(0, 11, 5),
                          max_request_size=self.MAX_SIZE,
                          retries=5,
@@ -29,8 +44,6 @@ class MsgSender:
         if(data is None):
             print(f"{now} Cant continue with empty data")
             return
-        # print(f"{now()} Sending tensor with {data.size} elements")
-        # msg = data.flatten().tobytes()
         try:
             print(f'{now()} Sending kafka msg to {self.TOPIC_NAME} topic')
             self.producer.send(self.TOPIC_NAME, value=data)
@@ -40,19 +53,36 @@ class MsgSender:
             print(f"{now()} Unexpected error:", sys.exc_info())
     def run(self):
         date_to = datetime.utcnow()
-        msg = np.random.randint(0, 100, (3,3))
+        parameter_1 = np.random.randint(0, 100, (3072,10))
+        parameter_2 = np.zeros((10,))
         i = 0
-        while(True):
-            MESSAGE = {
-                "type": "get_parameters",
-                "payload": {
-                    "paramters": 0,
-                    "epochs": 4
-                }
+        MESSAGE = {
+                "type": "fit_ins",
+                "server_address": SERVER_ADDRESS,
+                "max_send_message_length": KAFKA_MAX_SIZE,
+                "max_receive_message_length": KAFKA_MAX_SIZE,
+                "topic_name": "enginner_x_train_progress",
+                "parameters": {
+                    "tensors": [parameter_1, parameter_2],
+                    "tensor_type": "numpy.ndarray"
+                },
+                "local_epochs": 4,
+                "batch_size": 16
             }
+        while(True):
+            print("lets check this", json.dumps(MESSAGE, cls=NumpyArrayEncoder))
             self.sendMsg(MESSAGE)    
+            # self.sendMsg(json.dumps(MESSAGE, cls=NumpyArrayEncoder))    
             time.sleep(1)
             i =+ 1
+            # MESSAGE = {
+            #     "type": "get_parameters",
+            #     "payload": {
+            #         "paramters": 0,
+            #         "epochs": 4
+            #     }
+            # }
+            
     def init(self, server_address, options, verbose=False):
         self.sasl_mechanism = 'PLAIN'
         self.security_protocol = 'SASL_PLAINTEXT'
@@ -80,7 +110,7 @@ class MsgSender:
 
 if __name__ == "__main__":
     service = MsgSender(
-        '10.138.0.6:9092',
+        SERVER_ADDRESS,
         options={
             "max_send_message_length": KAFKA_MAX_SIZE,
             "max_receive_message_length": KAFKA_MAX_SIZE,
