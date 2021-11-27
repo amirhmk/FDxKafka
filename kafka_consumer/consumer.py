@@ -5,6 +5,9 @@ from datetime import datetime
 from threading import Thread
 import queue
 import numpy as np
+from six import Iterator
+
+from flwr.client.kafka_client.connection import ServerMessage
 
 KAFKA_MAX_SIZE = 104857600
 
@@ -61,16 +64,18 @@ class MsgReceiver(StoppableThread):
             os.environ.get("KAFKA_PASSWORD") if os.environ.get("KAFKA_PASSWORD") else ""
         )
     
-    def getNextMsg(self, block=True, timeout=None) -> np.ndarray:
-        if self.q.qsize() > 0:
+    def getNextMsg(self, block=True, timeout=None):
+        try:
             return self.q.get(block, timeout)
-        return None
-        return self.q.get(block, timeout)
+        except: #timeout empty exception
+            return None
+    
+    def getNextMsgIterator(self):
+        yield self.q.get(True, None)
 
     def run(self):
         while not self.stopped():
             for msg in self.consumer:
-                # gonna have to agree on a size or send it too.
                 self.q.put(msg)
 
     def close(self):

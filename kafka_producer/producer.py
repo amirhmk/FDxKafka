@@ -40,13 +40,15 @@ class MsgSender:
                          max_block_ms=self.DEFAULT_TIMEOUT)
 
 
-    def sendMsg(self, data : np.ndarray):
+    def sendMsg(self, data, topic_name : str=None):
         if(data is None):
             print(f"{now} Cant continue with empty data")
             return
+        if topic_name is None:
+            topic_name = self.TOPIC_NAME
         try:
-            print(f'{now()} Sending kafka msg to {self.TOPIC_NAME} topic')
-            self.producer.send(self.TOPIC_NAME, value=data)
+            print(f'{now()} Sending kafka msg to {topic_name} topic')
+            self.producer.send(topic_name, value=data)
             self.producer.flush()
             print(f'{now()} Done sending')
         except:
