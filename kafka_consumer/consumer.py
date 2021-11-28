@@ -62,6 +62,7 @@ class MsgReceiver(StoppableThread):
     
     def getNextMsg(self, block=True, timeout=None):
         try:
+            print(f"Getting next msg from {self.TOPIC_NAME}")
             return self.q.get(block, timeout)
         except: #timeout empty exception
             return None
