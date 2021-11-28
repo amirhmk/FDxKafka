@@ -30,10 +30,11 @@ class MsgReceiver(StoppableThread):
         self.init(server_address, options)
         self.log(INFO, f"Setting up Kafka consumer at {self.KAFKA_BROKER_URL}")
         self.consumer : KafkaConsumer = KafkaConsumer(self.TOPIC_NAME, bootstrap_servers=self.KAFKA_BROKER_URL,
-                                sasl_plain_username = self.KAFKA_USERNAME,
-                                sasl_plain_password = self.KAFKA_PASSWORD,
-                                security_protocol = self.security_protocol,
-                                sasl_mechanism = self.sasl_mechanism)
+                                # sasl_plain_username = self.KAFKA_USERNAME,
+                                # sasl_plain_password = self.KAFKA_PASSWORD,
+                                security_protocol = "PLAINTEXT",
+                                # sasl_mechanism = self.sasl_mechanism
+                                )
         self.q = queue.Queue()
 
     def init(self, server_address, options, verbose=False):

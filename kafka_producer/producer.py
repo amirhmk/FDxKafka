@@ -27,10 +27,10 @@ class MsgSender:
     def __init__(self, server_address, options):
         self.init(server_address, options)
         self.producer = KafkaProducer(bootstrap_servers = self.KAFKA_BROKER_URL,
-                         sasl_plain_username = self.KAFKA_USERNAME,
-                         sasl_plain_password = self.KAFKA_PASSWORD,
-                         security_protocol = self.security_protocol,
-                         sasl_mechanism = self.sasl_mechanism,
+                        #  sasl_plain_username = self.KAFKA_USERNAME,
+                        #  sasl_plain_password = self.KAFKA_PASSWORD,
+                         security_protocol = "PLAINTEXT",
+                        #  sasl_mechanism = self.sasl_mechanism,
                         #  value_serializer=lambda x: x.encode("utf8"),
                         #  value_serializer=lambda x: bytes(str(x), 'utf-8'),
                         #  value_serializer=lambda v: json.dumps(v, cls=NumpyArrayEncoder).encode('utf-8'),
