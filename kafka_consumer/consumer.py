@@ -29,7 +29,7 @@ class MsgReceiver(StoppableThread):
         super(MsgReceiver,self).__init__(name='MsgReceiverThread')
         self.init(server_address, options)
         self.log(INFO, f"Setting up Kafka consumer at {self.KAFKA_BROKER_URL}")
-        self.consumer = KafkaConsumer(self.TOPIC_NAME, bootstrap_servers=self.KAFKA_BROKER_URL,
+        self.consumer : KafkaConsumer = KafkaConsumer(self.TOPIC_NAME, bootstrap_servers=self.KAFKA_BROKER_URL,
                                 sasl_plain_username = self.KAFKA_USERNAME,
                                 sasl_plain_password = self.KAFKA_PASSWORD,
                                 security_protocol = self.security_protocol,
@@ -73,13 +73,13 @@ class MsgReceiver(StoppableThread):
 
     def run(self):
         while not self.stopped():
+            self.log(DEBUG, 'Waiting for next msg')
             for msg in self.consumer:
+                self.log(DEBUG, 'Got new msg!')
                 self.q.put(msg.value)
 
     def close(self):
-        # TODO
-        # stop thread, consumer
-        # self.thread.stop()
+        self.stop()
         self.consumer.close()
         pass
 
