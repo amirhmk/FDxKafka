@@ -1,11 +1,20 @@
+import sys, os
+sys.path.insert(0, os.getcwd())
+
 from functools import partial
 import flwr as fl
 import tensorflow as tf
-
-import model
-import dataset
-
+import fd_engine.model as model
+import fd_engine.dataset as dataset
 import os
+import yaml
+
+cfg = os.path.join(os.getcwd(), 'env.yaml')
+with open(cfg, 'r') as f:
+    configparam = yaml.load(f,Loader=yaml.FullLoader)
+
+os.environ['KAFKA_USERNAME'] = configparam['config']['KAFKA_USERNAME']
+os.environ['KAFKA_PASSWORD'] = configparam['config']['KAFKA_PASSWORD']
 try:
     user_paths = os.environ['PYTHONPATH'].split(os.pathsep)
 except KeyError:
@@ -67,14 +76,13 @@ class CifarClient(fl.client.NumPyClient):
         return loss, num_examples_test, {"accuracy": accuracy}
 
 
-def main():
+def main(client_id):
     """Create model, load data, define Flower client, start Flower client."""
     # Start client
     SERVER_ADDRESS = "10.138.0.6:9092"
     m = model.create_keras_model()
     m.compile("adam", "binary_crossentropy", metrics=["accuracy"])
-    partition = 2
-    (x_train, y_train), (x_test, y_test) = dataset.load_partition(partition)
+    (x_train, y_train), (x_test, y_test) = dataset.load_partition(client_id)
     # TODO: partition data into train/valid/test
     fl.client.start_kafka_client(SERVER_ADDRESS, client=CifarClient(m, x_train, y_train, x_test, y_test))
 
