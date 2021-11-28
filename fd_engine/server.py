@@ -6,7 +6,7 @@ import argparse
 
 cfg = os.path.join(os.getcwd(), 'env.yaml')
 with open(cfg, 'r') as f:
-    configparam = yaml.load(f)
+    configparam = yaml.load(f,Loader=yaml.FullLoader)
 
 os.environ['KAFKA_USERNAME'] = configparam['config']['KAFKA_USERNAME']
 os.environ['KAFKA_PASSWORD'] = configparam['config']['KAFKA_PASSWORD']
