@@ -11,7 +11,14 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
+import yaml
 
+cfg = os.path.join(os.getcwd(), 'env.yaml')
+with open(cfg, 'r') as f:
+    configparam = yaml.load(f,Loader=yaml.FullLoader)
+
+os.environ['KAFKA_USERNAME'] = configparam['config']['KAFKA_USERNAME']
+os.environ['KAFKA_PASSWORD'] = configparam['config']['KAFKA_PASSWORD']
 
 warnings.filterwarnings("ignore", category=UserWarning)
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

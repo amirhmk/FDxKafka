@@ -4,6 +4,14 @@ sys.path.insert(0, os.getcwd())
 import tensorflow as tf
 import argparse
 import flwr as fl
+import yaml
+
+cfg = os.path.join(os.getcwd(), 'env.yaml')
+with open(cfg, 'r') as f:
+    configparam = yaml.load(f,Loader=yaml.FullLoader)
+
+os.environ['KAFKA_USERNAME'] = configparam['config']['KAFKA_USERNAME']
+os.environ['KAFKA_PASSWORD'] = configparam['config']['KAFKA_PASSWORD']
 
 def main(kafka_server):
 # Load and compile Keras model
