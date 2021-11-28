@@ -47,7 +47,7 @@ class MsgSender:
         if topic_name is None:
             topic_name = self.TOPIC_NAME
         try:
-            self.log(INFO, f'Sending kafka msg to {topic_name} topic')
+            self.log(INFO, f'Sending kafka {len(data)} bytes to {topic_name} topic')
             self.producer.send(topic_name, value=data)
             self.producer.flush()
             self.log(DEBUG, 'Done sending')
