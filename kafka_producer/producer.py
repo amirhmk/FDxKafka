@@ -41,13 +41,13 @@ class MsgSender:
 
 
     def sendMsg(self, data, topic_name : str=None):
-        self.log(INFO, f'Sending kafka msg to {topic_name} topic')
         if(data is None):
             self.log(INFO, "Cant continue with empty data")
             return
         if topic_name is None:
             topic_name = self.TOPIC_NAME
         try:
+            self.log(INFO, f'Sending kafka msg to {topic_name} topic')
             self.producer.send(topic_name, value=data)
             self.producer.flush()
             self.log(DEBUG, 'Done sending')

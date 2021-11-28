@@ -74,7 +74,7 @@ class MsgReceiver(StoppableThread):
     def run(self):
         while not self.stopped():
             for msg in self.consumer:
-                self.q.put(msg)
+                self.q.put(msg.value)
 
     def close(self):
         # TODO
