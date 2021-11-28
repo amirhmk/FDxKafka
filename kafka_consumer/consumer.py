@@ -28,7 +28,7 @@ class MsgReceiver(StoppableThread):
     def __init__(self, server_address, options=None) -> None:
         super(MsgReceiver,self).__init__(name='MsgReceiverThread')
         self.init(server_address, options)
-        self.log(INFO, f"{now()} Setting up Kafka consumer at {self.KAFKA_BROKER_URL}")
+        self.log(INFO, f"Setting up Kafka consumer at {self.KAFKA_BROKER_URL}")
         self.consumer = KafkaConsumer(self.TOPIC_NAME, bootstrap_servers=self.KAFKA_BROKER_URL,
                                 sasl_plain_username = self.KAFKA_USERNAME,
                                 sasl_plain_password = self.KAFKA_PASSWORD,
