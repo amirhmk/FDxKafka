@@ -1,20 +1,16 @@
-import os, sys
+import os
 import threading
-from kafka import KafkaConsumer, KafkaProducer
+from kafka import KafkaConsumer
 from datetime import datetime
 from threading import Thread
 import queue
-import numpy as np
-from six import Iterator
-
-from flwr.client.kafka_client.connection import ServerMessage
 
 KAFKA_MAX_SIZE = 104857600
 
 now = lambda : str(datetime.now())
 
 
-class StoppableThread(threading.Thread):
+class StoppableThread(Thread):
     """Thread class with a stop() method. The thread itself has to check
     regularly for the stopped() condition."""
 
