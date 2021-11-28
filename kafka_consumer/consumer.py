@@ -4,7 +4,7 @@ from kafka import KafkaConsumer
 from datetime import datetime
 from threading import Thread
 import queue
-
+from logging import INFO, DEBUG
 KAFKA_MAX_SIZE = 104857600
 
 now = lambda : str(datetime.now())
@@ -28,7 +28,7 @@ class MsgReceiver(StoppableThread):
     def __init__(self, server_address, options=None) -> None:
         super(MsgReceiver,self).__init__(name='MsgReceiverThread')
         self.init(server_address, options)
-        print(f"{now()} Setting up Kafka consumer at {self.KAFKA_BROKER_URL}")
+        self.log(INFO, f"{now()} Setting up Kafka consumer at {self.KAFKA_BROKER_URL}")
         self.consumer = KafkaConsumer(self.TOPIC_NAME, bootstrap_servers=self.KAFKA_BROKER_URL,
                                 sasl_plain_username = self.KAFKA_USERNAME,
                                 sasl_plain_password = self.KAFKA_PASSWORD,
@@ -37,6 +37,7 @@ class MsgReceiver(StoppableThread):
         self.q = queue.Queue()
 
     def init(self, server_address, options, verbose=False):
+        self.log = options['log']
         self.sasl_mechanism = 'PLAIN'
         self.security_protocol = 'SASL_PLAINTEXT'
 
@@ -62,7 +63,7 @@ class MsgReceiver(StoppableThread):
     
     def getNextMsg(self, block=True, timeout=None):
         try:
-            print(f"Getting next msg from {self.TOPIC_NAME}")
+            self.log(INFO, f"Getting next msg from {self.TOPIC_NAME}")
             return self.q.get(block, timeout)
         except: #timeout empty exception
             return None

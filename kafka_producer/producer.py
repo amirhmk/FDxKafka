@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from kafka import KafkaProducer
 import numpy as np
-
+from logging import INFO,DEBUG
 
 now = lambda : str(datetime.now())
 
@@ -33,7 +33,7 @@ class MsgSender:
                          sasl_mechanism = self.sasl_mechanism,
                         #  value_serializer=lambda x: x.encode("utf8"),
                         #  value_serializer=lambda x: bytes(str(x), 'utf-8'),
-                         value_serializer=lambda v: json.dumps(v, cls=NumpyArrayEncoder).encode('utf-8'),
+                        #  value_serializer=lambda v: json.dumps(v, cls=NumpyArrayEncoder).encode('utf-8'),
                          api_version=(0, 11, 5),
                          max_request_size=self.MAX_SIZE,
                          retries=5,
@@ -42,17 +42,17 @@ class MsgSender:
 
     def sendMsg(self, data, topic_name : str=None):
         if(data is None):
-            print(f"{now} Cant continue with empty data")
+            self.log(INFO, "Cant continue with empty data")
             return
         if topic_name is None:
             topic_name = self.TOPIC_NAME
         try:
-            print(f'{now()} Sending kafka msg to {topic_name} topic')
+            self.log(INFO, 'Sending kafka msg to {topic_name} topic')
             self.producer.send(topic_name, value=data)
             self.producer.flush()
-            print(f'{now()} Done sending')
+            self.log(DEBUG, 'Done sending')
         except:
-            print(f"{now()} Unexpected error:", sys.exc_info())
+            self.log(INFO, f"Unexpected error: {sys.exc_info()}")
     def run(self):
         date_to = datetime.utcnow()
         parameter_1 = np.random.randint(0, 100, (3072,10))
@@ -86,6 +86,7 @@ class MsgSender:
             # }
             
     def init(self, server_address, options, verbose=False):
+        self.log = options['log']
         self.sasl_mechanism = 'PLAIN'
         self.security_protocol = 'SASL_PLAINTEXT'
 
