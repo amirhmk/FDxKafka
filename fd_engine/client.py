@@ -1,9 +1,7 @@
 import sys, os
 sys.path.insert(0, os.getcwd())
 
-from functools import partial
 import flwr as fl
-import tensorflow as tf
 import fd_engine.model as model
 import fd_engine.dataset as dataset
 import os
@@ -15,12 +13,6 @@ with open(cfg, 'r') as f:
 
 os.environ['KAFKA_USERNAME'] = configparam['config']['KAFKA_USERNAME']
 os.environ['KAFKA_PASSWORD'] = configparam['config']['KAFKA_PASSWORD']
-try:
-    user_paths = os.environ['PYTHONPATH'].split(os.pathsep)
-except KeyError:
-    user_paths = []
-
-print('PYTHONPATH', user_paths, fl.common)
 
 class CifarClient(fl.client.NumPyClient):
     def __init__(self, model, x_train, y_train, x_test, y_test):
@@ -88,4 +80,4 @@ def main(client_id):
 
 
 if __name__ == "__main__":
-    main()
+    main(2)

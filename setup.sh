@@ -1,3 +1,4 @@
+#!/bin/bash
 
 echo Adding current dir to PYTHONPATH
 export PYTHONPATH=$(pwd)
