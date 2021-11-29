@@ -15,6 +15,9 @@ a = argparse.ArgumentParser()
 a.add_argument("--broker", help="host_port of kafka broker")
 a.add_argument("--minclients", help="minimum number of clients for training",
                 required=False, default=1, type=int)
+a.add_argument("--numrounds", help="minimum number of training rounds",
+                required=False, default=3, type=int)
 args = a.parse_args()
 print(args)
-fl.server.start_server(server_address=args.broker, config={"num_rounds": 3, "min_fit_clients" : args.minclients})
+fl.server.start_server(server_address=args.broker, 
+                       config={"num_rounds": args.numrounds, "min_fit_clients" : args.minclients})

@@ -33,6 +33,10 @@ class MsgReceiver(StoppableThread):
                                 # sasl_plain_username = self.KAFKA_USERNAME,
                                 # sasl_plain_password = self.KAFKA_PASSWORD,
                                 security_protocol = "PLAINTEXT",
+                                auto_offset_reset = options['auto_offset_reset'],
+                                group_id = options['cid'],
+                                client_id = options['cid'],
+                                api_version = (0, 9)
                                 # sasl_mechanism = self.sasl_mechanism
                                 )
         self.q = queue.Queue()
@@ -64,24 +68,28 @@ class MsgReceiver(StoppableThread):
     
     def getNextMsg(self, block=True, timeout=None):
         try:
-            self.log(INFO, f"Getting next msg from {self.TOPIC_NAME}")
+            self.log(INFO, f"Getting next msg from {self.TOPIC_NAME} with block={block} and timeout={timeout}")
             return self.q.get(block, timeout)
         except: #timeout empty exception
+            self.log(INFO, f"Error getting next msg from {self.TOPIC_NAME}")
             return None
-    
-    def getNextMsgIterator(self):
-        yield self.q.get(True, None)
+        finally:
+            self.log(INFO, f"Done getting next msg from {self.TOPIC_NAME}")
 
     def run(self):
-        while not self.stopped():
-            self.log(DEBUG, 'Waiting for next msg')
+        self.running = True
+        while self.running:
+            self.log(DEBUG, 'Receiver waiting for next msg')
             for msg in self.consumer:
                 self.log(DEBUG, 'Got new msg!')
                 self.q.put(msg.value)
-
+            if not self.running:
+                break
+        self.log(DEBUG, 'Receiver thread stopped')
     def close(self):
         self.stop()
         self.consumer.close()
+        self.running = False
         pass
 
 if __name__ == "__main__":
