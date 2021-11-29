@@ -35,6 +35,7 @@ from .typing import Reconnect as Reconnect
 from .typing import Scalar as Scalar
 from .typing import Weights as Weights
 from .typing import KafkaMessage as KafkaMessage
+from .typing import StoppableThread as StoppableThread
 
 KAFKA_MAX_SIZE = 104857600 # == 100 * 1024 * 1024
 GRPC_MAX_MESSAGE_LENGTH: int = 536_870_912  # == 512 * 1024 * 1024

@@ -14,7 +14,7 @@
 # ==============================================================================
 """Flower server app."""
 
-
+import sys
 from logging import INFO
 from typing import Dict, Optional, Tuple
 from flwr.common import GRPC_MAX_MESSAGE_LENGTH
@@ -105,7 +105,8 @@ def start_server(  # pylint: disable=too-many-arguments
 
     if USE_KAFKA:
         # Stop the kafka server
-        kafka_server.stopServer(grace=1)
+        kafka_server.stop()
+        sys.exit(0)
     else:
         # Stop the gRPC server
         grpc_server.stop(grace=1)

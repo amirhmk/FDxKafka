@@ -47,6 +47,8 @@ def weighted_loss_avg(results: List[Tuple[int, float, Optional[float]]]) -> floa
         [num_examples for num_examples, _, _ in results]
     )
     weighted_losses = [num_examples * loss for num_examples, loss, _ in results]
+    if num_total_evaluation_examples == 0:
+        return 0
     return sum(weighted_losses) / num_total_evaluation_examples
 
 

@@ -16,9 +16,8 @@
 from queue import Queue
 import time
 import json
-from threading import Thread
 from typing import Callable, Any, Mapping
-from flwr.common import KAFKA_MAX_SIZE
+from flwr.common import KAFKA_MAX_SIZE, StoppableThread
 from flwr.common.logger import log
 from flwr.proto.transport_pb2 import ClientMessage, ServerMessage
 from flwr.proto import transport_pb2 as flwr_dot_proto_dot_transport__pb2
@@ -61,32 +60,36 @@ def start_kafka_receiver(
         An instance of a receiver which is already started
     """
 
-    server = KafkaServer(server_address, max_message_length, client_manager, topic_name)
-    server.startServer()
+    server = KafkaServer(server_address=server_address, 
+                         max_message_length=max_message_length, 
+                         client_manager=client_manager, 
+                         topic_name=topic_name)
+    server.start()
     return server
 
-class KafkaServer:
-    def __init__(self, server_address : str, max_message_length : int, 
-                       client_manager : ClientManager, topic_name : str) -> None:
-        self.server_address = server_address
-        self.client_manager : SimpleClientManager = client_manager
-        self.topic_name = topic_name
-        self.max_message_length = max_message_length
-        self.registered_cids = dict()        
+class KafkaServer(StoppableThread):
+    def __init__(self, *args, **kwargs) -> None:
+        super(KafkaServer, self).__init__(name="KafkaServer")
+        self.server_address = kwargs["server_address"]
+        self.client_manager : SimpleClientManager = kwargs["client_manager"]
+        self.topic_name = kwargs["topic_name"]
+        self.max_message_length = kwargs["max_message_length"]
+        self.registered_cids = dict()
         self.clientmsg_deserializer=flwr_dot_proto_dot_transport__pb2.ClientMessage.FromString,
         self.serverresponse_serializer=flwr_dot_proto_dot_transport__pb2.ServerMessage.SerializeToString,
-
 
         pass
     def stopServer(self, grace=1):
         time.sleep(grace)
-        self.running = False
-        self.thread.interrupt()
+        self.thread.stop()
         self.stopThreads()
-    def startServer(self):
-        self.running = True
-        self.__startServerReceiver()
-        self.__initServerMsgSender()
+        self.stop()
+    def run(self):
+        while not self.stopped():
+            self.__startServerReceiver()
+            self.__initServerMsgSender()
+            self._stop_event.wait()
+            log(INFO, "Stopping Flower Kafka server")
     
     def __startServerReceiver(self):
         self.serverReceiver = MsgReceiver(self.server_address,
@@ -95,12 +98,13 @@ class KafkaServer:
                                 "max_receive_message_length": self.max_message_length,
                                 "topic_name": self.topic_name,
                                 "log" : log,
-                                "cid" : "FLServer"
+                                "auto_offset_reset" : "latest",
+                                "cid" : "FLserverReceiver"
                              },
         )
         self.servicer = fss.FlowerServiceServicer(self.client_manager)
         self.serverReceiver.start()
-        self.thread = Thread(target = self.receiveMsgs, args = ())
+        self.thread = StoppableThread(target = self.receiveMsgs, args = ())
         self.thread.start()
     
     def __initServerMsgSender(self):
@@ -115,14 +119,14 @@ class KafkaServer:
 
     def stopThreads(self):
         for t in self.registered_cids:
-            t.interrupt()
+            t.stop()
         self.registered_cids = {} #not the best delete TODO
 
     def receiveMsgs(self):
         log(INFO, "Starting server receiver thread")
-        while(self.running):
+        while(not self.stopped()):
             msg = self.serverReceiver.getNextMsg(block=True, timeout=1000)
-            if not self.running:
+            if self.stopped():
                 log(INFO,"Kafka server interrupted")
                 break
             if msg is None:
@@ -133,13 +137,13 @@ class KafkaServer:
             #need to deserialize msg, get cid and push the msg to bridge
             cid, clientmsg = self.getClientMessage(msg)
             cid :str = cid
-            print(clientmsg)
             thread = None
             if cid in self.registered_cids: #find running sender thread if exists and push to it
                 thread : KafkaServer.senderThread = self.registered_cids[cid]
-                if not thread.running or clientmsg is None: #if client is registering again. reset the pipeline
+                if thread.stopped() or clientmsg is None: #if client is registering again. reset the pipeline
+                    log(INFO, f'Client server sender thread not running {clientmsg}')
                     self.client_manager.unregistercid(cid)
-                    thread.interrupt()
+                    thread.stop()
                     thread = None
 
             if thread is None:
@@ -155,30 +159,26 @@ class KafkaServer:
         log(INFO, "Stopping server receiver thread")
     
     def inputmsg(self, q):
-        yield q.get()
+        for msg in iter(q.get, None):
+            yield msg
     
     @staticmethod
-    class senderThread(Thread):
+    class senderThread(StoppableThread):
         def __init__(self, **kwargs: Mapping[str, Any]) -> None:
             super(KafkaServer.senderThread, self).__init__(name=kwargs["name"],
                             kwargs=kwargs)
             self.cid : str = kwargs["cid"]
             self.q : Queue = Queue()
-            self.running : bool = False
             self.caller : KafkaServer = kwargs["server"]
         
         def add(self, msg : ClientMessage):
-            self.q.add(msg)
-        
-        def interrupt(self):
-            self.running = False
+            self.q.put(msg)
             
         def run(self) -> None:
-            self.running = True
             inputiterator = self.caller.inputmsg(self.q)
             servermsgIterator = self.caller.servicer.Join(inputiterator, self.cid)
             #returns iterator with next msg from server to client
-            while self.running and self.caller.running:
+            while not self.stopped() and not self.caller.stopped():
                 try:
                     msg : ServerMessage = next(servermsgIterator)
                     log(DEBUG, f"Got new msg from server for {self.cid}")
@@ -186,7 +186,7 @@ class KafkaServer:
                     self.caller.server_msg_sender.sendMsg(msgdata, f"FLclient{self.cid}")
                     log(DEBUG, f"Msg for cid {self.cid} sent")
                 except:
-                    if not self.running or not self.caller.running:
+                    if self.stopped() or self.caller.stopped():
                         break
             log(INFO, f"Stopped server sender thread for {self.cid}")
 

@@ -17,7 +17,8 @@
 from enum import Enum
 from threading import Condition
 from typing import Iterator, Optional
-
+from logging import INFO, DEBUG
+from flwr.common.logger import log
 from flwr.proto.transport_pb2 import ClientMessage, ServerMessage
 
 
@@ -114,7 +115,7 @@ class KafkaBridge:
 
             if self._status != Status.AWAITING_SERVER_MESSAGE:
                 raise Exception("This should not happen")
-
+            log(DEBUG, "Sending request to client")
             self._server_message = server_message  # Write
             self._transition(Status.SERVER_MESSAGE_AVAILABLE)
 

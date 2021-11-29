@@ -134,8 +134,9 @@ def start_kafka(
                 if server_message is None:
                     log(INFO, 'No message received')
                     break
+                log(INFO, f"Got new server msg")
                 client_message, sleep_duration, keep_going = handle_kafka(
-                    client, server_message
+                    client, server_message, cid
                 )
                 if callable(client_message):
                     send = client_message

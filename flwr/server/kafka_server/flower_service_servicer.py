@@ -17,6 +17,7 @@
 Relevant knowledge for reading this modules code:
     - https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
 """
+import sys
 from logging import INFO,DEBUG
 from flwr.common.logger import log
 from typing import Callable, Iterator
@@ -112,3 +113,6 @@ class FlowerServiceServicer():#transport_pb2_grpc.FlowerServiceServicer
                     bridge.set_client_message(client_message)
                 except StopIteration:
                     break
+                except:
+                    print(sys.exc_info())
+                    print("Oops!", sys.exc_info()[1], "occurred.")

@@ -1,12 +1,12 @@
 import json
 from typing import Tuple
-from logging import INFO, DEBUG
 from flwr.client.kafka_client.connection import getCid
 from flwr.proto import transport_pb2 as flwr_dot_proto_dot_transport__pb2
 from flwr.proto.transport_pb2 import ClientMessage, Reason, ServerMessage
 from flwr.client.client import Client
 from flwr.common import KafkaMessage
 from kafka_producer.producer import MsgSender
+from logging import INFO, DEBUG
 from flwr.common.logger import log
 from flwr.common import parser
 from flwr.common.parameter import parameters_to_weights
@@ -23,7 +23,6 @@ def getServerMessage(msgdata) -> tuple([str, ServerMessage]):
 def getClientMessageBinary(cid : str, clientmsg : ClientMessage):
     payloadstr = clientmsg.SerializeToString()
     payload = {"cid" : cid, "payload" : payloadstr.hex()}
-    log(INFO,f"Got payload {payload}")
     return str(payload).encode('utf-8')
 
 def KafkaClientMessage(cid: str, payload: dict) -> KafkaMessage:
@@ -36,20 +35,33 @@ def KafkaClientMessage(cid: str, payload: dict) -> KafkaMessage:
 class UnknownServerMessage(Exception):
     """Signifies that the received message is unknown."""
 
-def handle_kafka(
-    client: Client, server_msg
-) -> Tuple[KafkaMessage, int, bool]:
-    print("what do we have here", server_msg.value)
-    cid, servermsg = getServerMessage(server_msg)
-    if client.cid is None:
-        client.cid = cid
-    clientmsg, ret1, ret2 = handle(client, servermsg)
-    msg : ClientMessage = clientmsg
-    if client.cid is None:
-        client.cid = getCid()
-    newmsg = getClientMessageBinary(client.cid, msg)
-    return newmsg, ret1, ret2
+def logtype(server_msg : ServerMessage) -> None:
+    if server_msg.HasField("reconnect"):
+        log(DEBUG, "Kafka handle reconnect msg")
+    elif server_msg.HasField("get_parameters"):
+        log(DEBUG, "Kafka get parameters msg")
+    elif server_msg.HasField("fit_ins"):
+        log(DEBUG, "Kafka handle fit msg")
+    elif server_msg.HasField("evaluate_ins"):
+        log(DEBUG, "Kafka handle evaluate msg")
+    elif server_msg.HasField("properties_ins"):
+        log(DEBUG, "Kafka handle properties msg")
+    else:
+        log(DEBUG, "Kafka handle Unknown msg")
 
+
+def handle_kafka(
+    client: Client, server_msg : ServerMessage, cid : str
+) -> Tuple[KafkaMessage, int, bool]:
+    msgcid, servermsg = getServerMessage(server_msg)
+    logtype(servermsg)
+    if cid != msgcid:
+        log(INFO, f"Msg cid not the same! Received:{cid} and msg cid {msgcid}")
+    clientmsg, ret1, ret2 = handle(client, servermsg)
+    log(DEBUG, "Sending reply msg")
+    msg : ClientMessage = clientmsg
+    newmsg = getClientMessageBinary(cid, msg)
+    return newmsg, ret1, ret2
 
 
 

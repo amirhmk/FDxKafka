@@ -32,6 +32,9 @@ from . import typing
 
 def parameters_to_proto(parameters: typing.Parameters) -> Parameters:
     """."""
+    #not sure why
+    if "ParametersRes" in str(type(parameters)):
+        parameters = parameters.parameters
     return Parameters(tensors=parameters.tensors, tensor_type=parameters.tensor_type)
 
 

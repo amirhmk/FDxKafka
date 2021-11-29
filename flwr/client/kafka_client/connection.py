@@ -72,7 +72,8 @@ def kafka_client_connection(
             "max_receive_message_length": max_message_length,
             "topic_name": consumer_topic_name,
             "log" : log,
-            "group_id": cid
+            "cid": cid,
+            "auto_offset_reset" : "latest",
         },
     )
     log(DEBUG, f"Started Kafka Consumer from topic={consumer_topic_name}")
@@ -80,7 +81,8 @@ def kafka_client_connection(
     
     #send and receive binary data
     send: Callable = lambda msg: {producer_channel.sendMsg(msg)}
-    receive: Callable = lambda : {next(consumer_channel.getNextMsgIterator())}
+    receive: Callable = consumer_channel.getNextMsg
+    # receive: Callable = lambda : {next(consumer_channel.getNextMsgIterator())}
     
     try:
         yield (receive, send)
