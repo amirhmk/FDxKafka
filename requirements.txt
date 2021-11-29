@@ -1,7 +1,10 @@
-tensorflow==2.6.1
 pillow==8.4.0
 scipy==1.5.2
-six==1.16.0
-numpy==1.21.4
+numpy==1.19.5
 kafka-python==2.0.2
 PyYAML==6.0
+tensorflow-cpu==2.6.2
+grpcio>=1.27.2
+google>=2.0.3
+protobuf>=3.12.1
+dataclasses===0.6
