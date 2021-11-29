@@ -11,13 +11,14 @@ with open(cfg, 'r') as f:
 os.environ['KAFKA_USERNAME'] = configparam['config']['KAFKA_USERNAME']
 os.environ['KAFKA_PASSWORD'] = configparam['config']['KAFKA_PASSWORD']
 
-a = argparse.ArgumentParser()
-a.add_argument("--broker", help="host_port of kafka broker")
-a.add_argument("--minclients", help="minimum number of clients for training",
-                required=False, default=1, type=int)
-a.add_argument("--numrounds", help="minimum number of training rounds",
-                required=False, default=3, type=int)
-args = a.parse_args()
-print(args)
-fl.server.start_server(server_address=args.broker, 
-                       config={"num_rounds": args.numrounds, "min_fit_clients" : args.minclients})
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--broker", help="host_port of kafka broker")
+    parser.add_argument("--minclients", help="minimum number of clients for training",
+                    required=False, default=1, type=int)
+    parser.add_argument("--numrounds", help="minimum number of training rounds",
+                    required=False, default=3, type=int)
+    args = parser.parse_args()
+    print(args)
+    fl.server.start_server(server_address=args.broker, 
+                        config={"num_rounds": args.numrounds, "min_fit_clients" : args.minclients})
