@@ -33,7 +33,7 @@ class MsgReceiver(StoppableThread):
                                 # sasl_plain_username = self.KAFKA_USERNAME,
                                 # sasl_plain_password = self.KAFKA_PASSWORD,
                                 security_protocol = "PLAINTEXT",
-                                auto_offset_reset = options['auto_offset_reset'],
+                                auto_offset_reset = "latest",
                                 group_id = options['cid'],
                                 client_id = options['cid'],
                                 api_version = (0, 9)
