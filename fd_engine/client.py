@@ -71,11 +71,11 @@ class CifarClient(fl.client.NumPyClient):
 def main(client_id):
     """Create model, load data, define Flower client, start Flower client."""
     # Start client
-    SERVER_ADDRESS = "10.138.0.6:9092"
+    # SERVER_ADDRESS = "10.138.0.6:9092"
+    SERVER_ADDRESS = "34.105.38.178:9091"
     m = model.create_keras_model()
     m.compile("adam", "binary_crossentropy", metrics=["accuracy"])
     (x_train, y_train), (x_test, y_test) = dataset.load_partition(client_id)
-    # TODO: partition data into train/valid/test
     fl.client.start_kafka_client(SERVER_ADDRESS, client=CifarClient(m, x_train, y_train, x_test, y_test))
 
 

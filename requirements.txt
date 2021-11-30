@@ -7,5 +7,3 @@ grpcio>=1.27.2
 google>=2.0.3
 protobuf>=3.12.1
 dataclasses===0.6
-torch>=1.9.0
-torchvision>=0.10.0

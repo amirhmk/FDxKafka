@@ -44,6 +44,13 @@ python fd_engine/cifar_numpy_test.py --broker 10.138.0.6:9092
 
 IN PROGRESS...
 
+To deploy the current directory to GCP as a cloud function, run the following:
+```
+gcloud functions deploy kafkaclientwest --trigger-http --allow-unauthenticated --runtime python37 --entry-point handler --region us-west1
+```
+
+Entrypoint will be the `handler` function in `main.py`.
+
 ## Logs
 
 

@@ -87,10 +87,10 @@ class MsgReceiver(StoppableThread):
                 break
         self.log(DEBUG, 'Receiver thread stopped')
     def close(self):
+        self.log(DEBUG, 'Closing connection for consumer')
         self.stop()
         self.consumer.close()
         self.running = False
-        pass
 
 if __name__ == "__main__":
     #start receiver in a new thread
