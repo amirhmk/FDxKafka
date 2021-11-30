@@ -68,15 +68,20 @@ class CifarClient(fl.client.NumPyClient):
         return loss, num_examples_test, {"accuracy": accuracy}
 
 
-def main(client_id):
+def main(client_id, broker=None):
     """Create model, load data, define Flower client, start Flower client."""
     # Start client
     # SERVER_ADDRESS = "10.138.0.6:9092"
+#     SERVER_ADDRESS = "10.138.0.6:9092"
     SERVER_ADDRESS = "34.105.38.178:9091"
+    if broker is None:
+      broker = SERVER_ADDRESS
+
+    print(f"Using broker at {broker}")
     m = model.create_keras_model()
     m.compile("adam", "binary_crossentropy", metrics=["accuracy"])
     (x_train, y_train), (x_test, y_test) = dataset.load_partition(client_id)
-    fl.client.start_kafka_client(SERVER_ADDRESS, client=CifarClient(m, x_train, y_train, x_test, y_test))
+    fl.client.start_kafka_client(broker, client=CifarClient(m, x_train, y_train, x_test, y_test))
 
 
 if __name__ == "__main__":

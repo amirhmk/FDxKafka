@@ -6,7 +6,10 @@ import fd_engine.client
 
 def handler(request):
     # subprocess.call(". setup.sh", shell=True, executable='/bin/bash')
-    fd_engine.client.main(2)
+    broker = None
+    if request.broker is not None:
+      broker = request.broker
+    fd_engine.client.main(2, broker)
 
 if __name__ == "__main__":
     handler("")
