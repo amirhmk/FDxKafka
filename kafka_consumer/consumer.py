@@ -20,6 +20,7 @@ class StoppableThread(Thread):
 
     def stop(self):
         self._stop_event.set()
+        # raise Exception('Stop!')
 
     def stopped(self):
         return self._stop_event.is_set()
@@ -78,12 +79,15 @@ class MsgReceiver(StoppableThread):
 
     def run(self):
         self.running = True
-        while self.running:
-            self.log(DEBUG, 'Receiver waiting for next msg')
-            for msg in self.consumer:
-                self.log(DEBUG, 'Got new msg!')
-                self.q.put(msg.value)
-            if not self.running:
+        while not self.stopped():
+            try:
+                self.log(DEBUG, 'Receiver waiting for next msg')
+                for msg in self.consumer:
+                    self.log(DEBUG, 'Got new msg!')
+                    self.q.put(msg.value)
+            except:
+                self.log(DEBUG, 'Receiver thread interrupted')
+            if self.stopped():
                 break
         self.log(DEBUG, 'Receiver thread stopped')
     def close(self):

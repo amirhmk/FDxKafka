@@ -113,7 +113,7 @@ def load_data():
 # #############################################################################
 
 
-def main(kafka_server):
+def main(kafka_server,clientid=None):
     """Create model, load data, define Flower client, start Flower client."""
 
     # Load model
@@ -144,7 +144,7 @@ def main(kafka_server):
         def get_properties(self, config : Config):
             return config        
     # Start client
-    fl.client.start_numpy_kafka_client(kafka_server, client=CifarClient())
+    fl.client.start_numpy_kafka_client(kafka_server, client=CifarClient(), clientid=clientid)
 
 if __name__ == "__main__":
     a = argparse.ArgumentParser()

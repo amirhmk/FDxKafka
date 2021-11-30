@@ -13,7 +13,7 @@ with open(cfg, 'r') as f:
 os.environ['KAFKA_USERNAME'] = configparam['config']['KAFKA_USERNAME']
 os.environ['KAFKA_PASSWORD'] = configparam['config']['KAFKA_PASSWORD']
 
-def main(kafka_server):
+def main(kafka_server,clientid=None):
 # Load and compile Keras model
     model = tf.keras.applications.MobileNetV2((32, 32, 3), classes=10, weights=None)
     model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
@@ -39,7 +39,7 @@ def main(kafka_server):
         def get_properties(self, config):
             return config
     # Start client
-    fl.client.start_numpy_kafka_client(kafka_server, client=CifarClient())
+    fl.client.start_numpy_kafka_client(kafka_server, client=CifarClient(), clientid=clientid)
 if __name__ == "__main__":
     a = argparse.ArgumentParser()
     a.add_argument("--broker", help="host_port of kafka broker")

@@ -87,7 +87,9 @@ def start_client(
 def start_kafka(
     server_address: str,
     client: Client,
+    clientid: str,
     kafka_max_message_length: int = KAFKA_MAX_MESSAGE_LENGTH,
+    sleep_duration: int = 0
 ) -> None:
     """Start a Flower Client which connects to a Kafka Cluster.
 
@@ -110,18 +112,17 @@ def start_kafka(
     """
 
     # now = lambda : str(datetime.now())
-
-    cid = getCid()
+    if clientid is None:
+        clientid = getCid()
     #send registration message to server so it knows we're here
-    regmsg = getClientMessageBinary(cid, ClientMessage())
+    regmsg = getClientMessageBinary(clientid, ClientMessage())
     
     # send(regmsg)
     #get messages received
     while True:
-        sleep_duration: int = 3
         with kafka_client_connection(
             server_address, 
-            cid=cid,
+            cid=clientid,
             max_message_length=kafka_max_message_length,
             registrationmsg=regmsg
         ) as conn:
@@ -136,7 +137,7 @@ def start_kafka(
                     break
                 log(INFO, f"Got new server msg")
                 client_message, sleep_duration, keep_going = handle_kafka(
-                    client, server_message, cid
+                    client, server_message, clientid
                 )
                 if callable(client_message):
                     send = client_message
@@ -244,6 +245,7 @@ def start_keras_client(
 def start_kafka_client(
     server_address: str,
     client: KerasClient,
+    clientid : str,
     kafka_max_message_length: int = KAFKA_MAX_MESSAGE_LENGTH) -> None:
     """Start a Flower Kafka Client which acts as a Kafka Producer.
 
@@ -270,13 +272,14 @@ def start_kafka_client(
     start_kafka(
         server_address=server_address,
         client=flower_client,
+        clientid=clientid,
         kafka_max_message_length=kafka_max_message_length,
     )
-
 
 def start_numpy_kafka_client(
     server_address: str,
     client: NumPyClient,
+    clientid : str,
     kafka_max_message_length: int = KAFKA_MAX_MESSAGE_LENGTH) -> None:
     """Start a Flower Kafka Client which acts as a Kafka Producer.
 
@@ -303,5 +306,6 @@ def start_numpy_kafka_client(
     start_kafka(
         server_address=server_address,
         client=flower_client,
+        clientid=clientid,
         kafka_max_message_length=kafka_max_message_length,
     )
