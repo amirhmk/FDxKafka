@@ -1,6 +1,6 @@
 import sys, os
 sys.path.insert(0, os.getcwd())
-
+import numpy as np
 import flwr as fl
 import fd_engine.model as model
 import fd_engine.dataset as dataset
@@ -50,8 +50,9 @@ def main(client_id, broker=None):
     print(f"Using broker at {broker}")
     m = model.create_keras_model()
     m.compile("adam", "binary_crossentropy", metrics=["accuracy"])
-    (x_train, y_train), (x_test, y_test) = dataset.load_partition(client_id)
-    fl.client.start_kafka_client(broker, client=CifarClient(m, x_train, y_train, x_test, y_test))
+    (x_train, y_train), (x_test, y_test) = dataset.load_partition(np.random.randint(0,10))
+    fl.client.start_kafka_client(broker, client=CifarClient(m, x_train, y_train, x_test, y_test),
+                                clientid=client_id)
 
 
 if __name__ == "__main__":
