@@ -21,13 +21,13 @@ import requests
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 
-BROKER_ADDRESS = "34.105.38.178:9091"
 
-def create_client(i):
+def create_client(i, server_address, channel):
     url = "https://us-west1-manifest-design-328217.cloudfunctions.net/kafkaclient"
     params = {
-        "broker": BROKER_ADDRESS,
-        "client_id": i
+        "broker": server_address,
+        "client_id": i,
+        "channel": channel
         }
     print(f"Called cloud function {i}")
     response = requests.post(url, params=params)
@@ -38,10 +38,11 @@ def process_result(return_value):
     print("End Time ", time.time(), return_value)
     print(return_value)
 
-def pool_client_map(nprocs):
+def pool_client_map(nprocs, server_address, channel):
     # Let the executor divide the work among processes by using 'map'.
+    all_results = []
     with ThreadPoolExecutor(max_workers=nprocs) as executor:
-        future_to_client = {executor.submit(create_client, i): i for i in range(nprocs)}
+        future_to_client = {executor.submit(create_client, i, server_address, channel): i for i in range(nprocs)}
         for future in concurrent.futures.as_completed(future_to_client):
             results = future_to_client[future]
         try:
@@ -60,12 +61,14 @@ def spin_up_instances():
 
 def run_with_gRPC():
     """Runs the test with the default gRPC protocol"""
-    pass
+    GRPC_SERVER_ADDRESS = "34.105.38.178:8080"
+    pool_client_map(3, GRPC_SERVER_ADDRESS, 'gRPC')
 
 
 def run_with_kafka():
     """Runs the test with Kafka as communication channel"""
-    pass
+    KAFKA_SERVER_ADDRESS = "34.105.38.178:9091"
+    pool_client_map(3, KAFKA_SERVER_ADDRESS, 'kafka')
 
 
 def run_test():
@@ -76,10 +79,9 @@ def run_test():
     3. Total time for model to be updated on all devices
     """
     # Kafka
-    pool_client_map(3)
+    run_with_kafka()
     #gRPC
-    pass
-
+    run_with_gRPC()
 
 if __name__ == "__main__":
     # print("Cores Available: ", mp.cpu_count())
