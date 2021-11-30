@@ -45,7 +45,7 @@ def main(client_id, broker=None):
 #     SERVER_ADDRESS = "10.138.0.6:9092"
     SERVER_ADDRESS = "34.105.38.178:9091"
     if broker is None:
-      broker = SERVER_ADDRESS
+	    broker = SERVER_ADDRESS
 
     print(f"Using broker at {broker}")
     m = model.create_keras_model()
