@@ -48,9 +48,8 @@ def kafka_client_connection(
     registrationmsg : bytes = None
 ) -> Iterator[Tuple[Callable[[], ServerMessage], Callable[[bytes], None]]]:
     """Establish a producer and consumer for client"""
-    # start receiver in a new thread
 
-    # # start producer in a new thread
+    # start producer in a new thread
     producer_channel = MsgSender(
         server_address,
         options={
@@ -61,7 +60,7 @@ def kafka_client_connection(
         },
     )
     log(DEBUG, f"Started Kafka Producer to topic={SERVER_TOPIC}")
-    print(f"Sending {len(registrationmsg)} bytes")
+    log(DEBUG, f"Sending {len(registrationmsg)} bytes")
     producer_channel.sendMsg(registrationmsg)
 
     consumer_topic_name = f"FLclient{cid}"
@@ -87,8 +86,7 @@ def kafka_client_connection(
     try:
         yield (receive, send)
     except:
-        print(sys.exc_info())
-        print("Oops!", sys.exc_info()[1], "occurred.")
+        log(DEBUG, "Error: client connection!", sys.exc_info()[1])
     finally:
         # Make sure to have a final
         consumer_channel.close()
