@@ -18,12 +18,12 @@ pip install -r requirements.txt
 
 #### Kafka:
 ```
-python fd_engine/server.py --numrounds 3 --broker 10.138.0.6:9092
+python fd_engine/server.py --numrounds 5 --broker 10.138.0.6:9092
 ```
 
 #### gRPC
 ```
-python fd_engine/server.py --grpc --numrounds 3 --broker "[::]:8080"
+python fd_engine/server.py --grpc --numrounds 5 --broker "[::]:8080"
 ```
 
 ```
@@ -44,7 +44,7 @@ Arguments:
 
 
 ```
-python fd_engine/cifar_numpy_test.py --broker 10.138.0.6:9092
+python fd_engine/client.py --broker 10.138.0.6:9092
 ```
 
 ## Local testing in Docker
@@ -68,8 +68,32 @@ docker logs broker -f
 
 ## Evaluation
 
+In order to compare our implementation, we use the existing gRPC channel as the benchmark. Then we perform the following:
 
-IN PROGRESS...
+1. Spin up a server:
+   1. 5 training rounds
+   2. 100 minimum devices
+2. Spin up clients in the following way:
+   1. Spin up 50 clients using cloud function
+   2. Spin up 50 clients using local setup, and GCP instances
+
+In our evaluation, we measure the following for each of `gRPC` and `kafka` channels:
+1. Total # of transmitted messages
+2. Total time to finish 5 rounds of training
+3. Total time for model to be updated on all devices
+
+
+### Running evaluations
+
+1. Start up the server as outlined above. 
+2. Spin up the cloud function clients: (Make sure you're in `evaluations` directory: `npm test`
+3. From the root directory, run `python evaluations/stress_test.py`
+  This terminal window will report the above metrics.
+
+### Results
+Insert results here
+
+### Cloud functions
 
 To deploy the current directory to GCP as a cloud function, run the following:
 ```

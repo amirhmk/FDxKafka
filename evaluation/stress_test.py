@@ -75,7 +75,6 @@ def pool_client_local(nprocs, server_address, channel):
 def pool_client_cloud_function(nprocs, server_address, channel):
     # Let the executor divide the work among processes by using 'map'.
     all_results = []
-    print("HeLLLLO")
     with ThreadPoolExecutor(max_workers=nprocs) as executor:
         future_to_client = {}
         for i in range(1, nprocs+1):
@@ -102,7 +101,7 @@ def run_with_gRPC(num_clients):
     with ThreadPoolExecutor(max_workers=2) as executor:
         future_to_client = {}
         # future_to_client[executor.submit(pool_client_cloud_function, 5, GRPC_SERVER_ADDRESS, 'gRPC')] = "CLOUD_FUNCTION"
-        future_to_client[executor.submit(pool_client_local, 8, GRPC_SERVER_ADDRESS, 'gRPC')] = "LOCAL"
+        future_to_client[executor.submit(pool_client_local, num_clients, GRPC_SERVER_ADDRESS, 'gRPC')] = "LOCAL"
         for i, future in enumerate(concurrent.futures.as_completed(future_to_client)):
             results = future_to_client[future]
             try:
@@ -122,13 +121,13 @@ def run_with_kafka(num_clients):
 def run_test(num_clients):
     """
     Runs a training round with 1000 clients and reports:
-    1. Total # of transmitted messages
+    1. Total # of transmitted messages TODO
     2. Total time to finish 5 rounds of training
     3. Total time for model to be updated on all devices
     """
     # Kafka
     # run_with_kafka(num_clients)
-    #gRPC
+    # gRPC
     run_with_gRPC(num_clients)
 
 if __name__ == "__main__":

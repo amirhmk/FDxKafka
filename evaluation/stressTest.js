@@ -20,7 +20,7 @@ const callClient = async (broker, client_id, channel) => {
  
 const run_test_cloud_function = async (totalClients, broker, channel) => {
   const clientIds = [...Array(totalClients).keys()].map(clientIds => clientIds + 1)
-  console.log(clientIds)
+  console.log(`Spinning up ${totalClients} clients`)
   try {
         const CustomRetry = (e, attemptNumber) => {
             console.log("e", e)
