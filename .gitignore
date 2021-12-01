@@ -135,3 +135,6 @@ ec2_key_ML.pem
 fd_engine/data
 fd_engine/data_raw
 dataset
+
+# Evaluation
+evaluation/node_modules/
