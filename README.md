@@ -47,6 +47,18 @@ Arguments:
 python fd_engine/cifar_numpy_test.py --broker 10.138.0.6:9092
 ```
 
+## Local testing in Docker
+
+Start local kafka and zookeeper
+```
+docker-compose -f kafka_cluster/docker-compose.yml up -d
+```
+Stop kafka
+```
+docker-compose -f kafka_cluster/docker-compose.yml down
+```
+Broker url is going to be 127.0.0.1:9091
+
 
 ## Evaluation
 
