@@ -38,13 +38,14 @@ KAFKA_MAX_MESSAGE_LENGTH = KAFKA_MAX_MESSAGE_LENGTH
 
 
 def start_server(  # pylint: disable=too-many-arguments
+    use_kafka : bool,
     server_address: str = GRPC_DEFAULT_SERVER_ADDRESS,
     server: Optional[Server] = None,
     config: Optional[Dict[str, int]] = None,
     strategy: Optional[Strategy] = None,
     max_message_length: int = GRPC_MAX_MESSAGE_LENGTH,
     force_final_distributed_eval: bool = False,
-    use_kafka : bool = DEFAULT_USE_KAFKA
+    
 ) -> None:
     """Start a Flower server using the Kafka transport layer.
 
