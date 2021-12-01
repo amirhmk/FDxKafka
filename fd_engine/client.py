@@ -59,8 +59,9 @@ def main(client_id, broker=None, channel='kafka'):
         fl.client.start_kafka_client(broker, client=client, clientid=client_id)
     else:
         log(INFO, "Using gRPC Client")
-        fl.client.start_client(broker, client=client)
+        fl.client.start_numpy_client(broker, client=client)
 
 
 if __name__ == "__main__":
-    main(client_id=None)
+    main(client_id=2, broker="[::]:8081", channel='gRPC')
+    # main(client_id=2, broker="34.105.38.178:9091", channel='kafka')
