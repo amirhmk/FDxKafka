@@ -1,5 +1,4 @@
 pillow==8.4.0
-scipy==1.5.2
 numpy==1.19.5
 kafka-python==2.0.2
 PyYAML==6.0
