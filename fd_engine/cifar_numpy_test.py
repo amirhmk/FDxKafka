@@ -147,6 +147,7 @@ def main(kafka_server,clientid=None):
             return config        
     # Start client
     fl.client.start_numpy_kafka_client(kafka_server, client=CifarClient(), clientid=clientid)
+    print("Client done")
 
 if __name__ == "__main__":
     a = argparse.ArgumentParser()
@@ -155,3 +156,4 @@ if __name__ == "__main__":
     print(args)
     cid = f"cifar_test_{np.random.randint(0,100)}"
     main(args.broker, cid)
+    sys.exit()

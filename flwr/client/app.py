@@ -309,3 +309,4 @@ def start_numpy_kafka_client(
         clientid=clientid,
         kafka_max_message_length=kafka_max_message_length,
     )
+    print("Client done")
