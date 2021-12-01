@@ -2,10 +2,13 @@ import sys, os
 sys.path.insert(0, os.getcwd())
 import numpy as np
 import flwr as fl
+from logging import INFO
 import fd_engine.model as model
 import fd_engine.dataset as dataset
 import os
 import yaml
+
+from flwr.common.logger import log
 
 cfg = os.path.join(os.getcwd(), 'env.yaml')
 with open(cfg, 'r') as f:
@@ -52,8 +55,10 @@ def main(client_id, broker=None, channel='kafka'):
     client = CifarClient(m, x_train, y_train, x_test, y_test)
 
     if channel == "kafka":
+        log(INFO, "Using Kafka Client")
         fl.client.start_kafka_client(broker, client=client, clientid=client_id)
     else:
+        log(INFO, "Using gRPC Client")
         fl.client.start_client(broker, client=client)
 
 

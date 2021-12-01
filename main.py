@@ -22,15 +22,11 @@ def handler(request):
         client_id = 3
         channel = 'kafka'
 
-    start_time = time.time()
     # subprocess.call(". setup.sh", shell=True, executable='/bin/bash')
     print(f"Starting request for client id {client_id}")
     # fd_engine.cifar_numpy_test.main(broker)
     fd_engine.client.main(client_id=client_id, broker=broker, channel=channel)
-    end_time = time.time()
-    duration = end_time - start_time
-    print(f"Duration: {duration} Sec")
-    return duration
+    return
 
 if __name__ == "__main__":
     handler("")

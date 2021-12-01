@@ -30,9 +30,11 @@ def create_client(i, server_address, channel):
         "channel": channel
         }
     print(f"Called cloud function {i}")
+    start_time = time.time()
     response = requests.post(url, params=params)
-    print(response)
-    return i * i # square the argument
+    end_time = time.time()
+    duration = end_time - start_time
+    return duration
     
 def process_result(return_value):
     print("End Time ", time.time(), return_value)
@@ -50,8 +52,6 @@ def pool_client_map(nprocs, server_address, channel):
             print("data", data)
         except Exception as exc:
             print('%r generated an exception: %s' % (results, exc))
-        else:
-            print('%r page is %d bytes' % (results, len(data)))
 
 
 def spin_up_instances():
@@ -61,7 +61,7 @@ def spin_up_instances():
 
 def run_with_gRPC():
     """Runs the test with the default gRPC protocol"""
-    GRPC_SERVER_ADDRESS = "34.105.38.178:8080"
+    GRPC_SERVER_ADDRESS = "35.203.161.106:8080"
     pool_client_map(3, GRPC_SERVER_ADDRESS, 'gRPC')
 
 
@@ -79,14 +79,14 @@ def run_test():
     3. Total time for model to be updated on all devices
     """
     # Kafka
-    run_with_kafka()
+    # run_with_kafka()
     #gRPC
     run_with_gRPC()
 
 if __name__ == "__main__":
     # print("Cores Available: ", mp.cpu_count())
     # pool_client(mp.cpu_count())
-    pool_client_map(3)
+    run_test()
 
 
 
