@@ -31,10 +31,14 @@ def create_client(i, server_address, channel):
         }
     print(f"Called cloud function {i}")
     start_time = time.time()
-    response = requests.post(url, params=params)
+    try:
+        response = requests.post(url, params=params)
+    except Exception as e:
+        print(f"Error for cloud function: client {i}", e)
+    print("responce", response.status_code, response.text)
     end_time = time.time()
     duration = end_time - start_time
-    return duration
+    return i, duration
     
 def process_result(return_value):
     print("End Time ", time.time(), return_value)
@@ -44,34 +48,37 @@ def pool_client_map(nprocs, server_address, channel):
     # Let the executor divide the work among processes by using 'map'.
     all_results = []
     with ThreadPoolExecutor(max_workers=nprocs) as executor:
-        future_to_client = {executor.submit(create_client, i, server_address, channel): i for i in range(nprocs)}
-        for future in concurrent.futures.as_completed(future_to_client):
+        future_to_client = {}
+        for i in range(nprocs):
+            future_to_client[executor.submit(create_client, i, server_address, channel)] = i
+            sleep_duration = 5
+            if i % 5 == 0:
+                print(f"Sleeping for {sleep_duration} seconds")
+                time.sleep(sleep_duration)
+        # future_to_client = {executor.submit(create_client, i, server_address, channel): i for i in range(nprocs)}
+        for i, future in enumerate(concurrent.futures.as_completed(future_to_client)):
             results = future_to_client[future]
-        try:
-            data = future.result()
-            print("data", data)
-        except Exception as exc:
-            print('%r generated an exception: %s' % (results, exc))
+            try:
+                client_id, time_taken = future.result()
+                print(f"time taken for client={client_id} : {round(time_taken,3)}")
+                print(f"Total Completed: {i}/{nprocs}")
+            except Exception as exc:
+                print('%r generated an exception: %s' % (results, exc))
 
 
-def spin_up_instances():
-    """Spins up 1000 instances"""
-    pass
-
-
-def run_with_gRPC():
+def run_with_gRPC(num_clients):
     """Runs the test with the default gRPC protocol"""
-    GRPC_SERVER_ADDRESS = "35.203.161.106:8080"
-    pool_client_map(3, GRPC_SERVER_ADDRESS, 'gRPC')
+    GRPC_SERVER_ADDRESS = "35.203.161.106:8081"
+    pool_client_map(num_clients, GRPC_SERVER_ADDRESS, 'gRPC')
 
 
-def run_with_kafka():
+def run_with_kafka(num_clients):
     """Runs the test with Kafka as communication channel"""
     KAFKA_SERVER_ADDRESS = "34.105.38.178:9091"
-    pool_client_map(3, KAFKA_SERVER_ADDRESS, 'kafka')
+    pool_client_map(num_clients, KAFKA_SERVER_ADDRESS, 'kafka')
 
 
-def run_test():
+def run_test(num_clients):
     """
     Runs a training round with 1000 clients and reports:
     1. Total # of transmitted messages
@@ -79,14 +86,14 @@ def run_test():
     3. Total time for model to be updated on all devices
     """
     # Kafka
-    # run_with_kafka()
+    # run_with_kafka(num_clients)
     #gRPC
-    run_with_gRPC()
+    run_with_gRPC(num_clients)
 
 if __name__ == "__main__":
     # print("Cores Available: ", mp.cpu_count())
     # pool_client(mp.cpu_count())
-    run_test()
+    run_test(200)
 
 
 
