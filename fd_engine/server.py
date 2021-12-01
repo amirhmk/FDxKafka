@@ -22,6 +22,7 @@ if __name__ == "__main__":
                     required=False, default=False, action='store_true')
     args = parser.parse_args()
     print(args)
-    fl.server.start_server(server_address=args.broker, 
-                        config={"num_rounds": args.numrounds, "min_fit_clients" : args.minclients,
-                                "use_kafka" : not args.grpc})
+    fl.server.start_server(server_address=args.broker,
+                            use_kafka=not args.grpc,
+                            config={"num_rounds": args.numrounds, "min_fit_clients" : args.minclients,
+                                })
