@@ -1,0 +1,16 @@
+{
+  "name": "evaludation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "stressTest.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "exponential-backoff": "^3.1.0",
+    "node-fetch": "^3.1.0"
+  },
+  "type": "module"
+}

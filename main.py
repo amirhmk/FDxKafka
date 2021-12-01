@@ -7,7 +7,6 @@ import fd_engine.client
 def handler(request):
     request_json = request.get_json(silent=True)
     request_args = request.args
-    print("request_json", request_json)
 
     if request_json and 'broker' in request_json:
         broker = request_json['broker']
@@ -22,6 +21,9 @@ def handler(request):
         client_id = 3
         channel = 'kafka'
 
+    print("Broker: ", broker)
+    print("client_id: ", client_id)
+    print("Channel: ", channel)
     # subprocess.call(". setup.sh", shell=True, executable='/bin/bash')
     print(f"Starting request for client id {client_id}")
     # fd_engine.cifar_numpy_test.main(broker)
