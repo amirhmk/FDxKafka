@@ -37,4 +37,5 @@ if __name__ == "__main__":
                                     "min_available_clients" : args.min_available_clients,
                                 })
     except:
-        print("Error: client connection!", sys.exc_info()[1])
+        print("Server stopped.")
+        sys.exit()
