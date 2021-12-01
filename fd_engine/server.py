@@ -29,12 +29,18 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
     try:
+        # Create strategy
+        strategy = fl.server.strategy.FedAvg(
+            fraction_fit=0.3,
+            fraction_eval=0.2,
+            min_fit_clients=50,
+            min_eval_clients=50,
+            min_available_clients=50,
+        )
         fl.server.start_server(server_address=args.broker,
                             use_kafka=not args.grpc,
-                            config={"num_rounds": args.numrounds, 
-                                    "min_fit_clients" : args.minclients,
-                                    "min_eval_clients" : args.min_eval_clients,
-                                    "min_available_clients" : args.min_available_clients,
-                                })
+                            strategy=strategy,
+                            config={"num_rounds": args.numrounds
+                            })
     except:
         print("Error: client connection!", sys.exc_info()[1])
