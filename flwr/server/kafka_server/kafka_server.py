@@ -82,8 +82,8 @@ class KafkaServer(StoppableThread):
         pass
     def stopServer(self, grace=1):
         time.sleep(grace)
-        self.thread.stop()
         self.stopThreads()
+        self.thread.stop()
     def run(self):
         try:
             while not self.stopped():
@@ -93,7 +93,7 @@ class KafkaServer(StoppableThread):
                 self.stopServer(grace=0)
                 log(INFO, "Stopping Flower Kafka server")
         except:
-            print("Error: client connection!", sys.exc_info()[1])
+            print("Client connection stopped")
     
     def __startServerReceiver(self):
         self.serverReceiver = MsgReceiver(self.server_address,
@@ -123,9 +123,16 @@ class KafkaServer(StoppableThread):
 
     def stopThreads(self):
         for t in self.registered_cids:
+            log(DEBUG, f"Stopping sender thread for {t}")
             self.registered_cids[t].stop()
         self.registered_cids = {} #not the best delete TODO
-
+    def stopClientThread(self, cid):
+        log(DEBUG, f"Stopping sender thread for {cid}")
+        t : KafkaServer.senderThread = self.registered_cids.pop(cid, None)
+        if t is not None:
+            t.stop()
+        else:
+            log(INFO, f"Sender thread not found for {cid}")
     def receiveMsgs(self):
         log(INFO, "Starting server receiver thread")
         try:
@@ -135,7 +142,6 @@ class KafkaServer(StoppableThread):
                     log(INFO,"Kafka server interrupted")
                     break
                 if msg is None:
-                    log(DEBUG,"No message received")
                     continue
                 log(INFO,"Got new message in server receiver")
 
@@ -178,6 +184,7 @@ class KafkaServer(StoppableThread):
             self.cid : str = kwargs["cid"]
             self.q : Queue = Queue()
             self.caller : KafkaServer = kwargs["server"]
+            self.daemon = True
         
         def add(self, msg : ClientMessage):
             self.q.put(msg)
@@ -194,8 +201,7 @@ class KafkaServer(StoppableThread):
                     self.caller.server_msg_sender.sendMsg(msgdata, f"FLclient{self.cid}")
                     log(DEBUG, f"Msg for cid {self.cid} sent")
                 except:
-                    if self.stopped() or self.caller.stopped():
-                        break
+                    break
             log(INFO, f"Stopped server sender thread for {self.cid}")
 
     def servermsgSender(self, cid):

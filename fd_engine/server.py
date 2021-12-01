@@ -43,4 +43,5 @@ if __name__ == "__main__":
                             config={"num_rounds": args.numrounds
                             })
     except:
-        print("Error: client connection!", sys.exc_info()[1])
+        print("Server stopped.")
+        sys.exit()

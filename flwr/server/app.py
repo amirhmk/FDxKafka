@@ -87,7 +87,7 @@ def start_server(  # pylint: disable=too-many-arguments
             server_address=server_address,
             max_message_length=max_message_length,
             topic_name = SERVER_TOPIC)
-        initialized_server.kafka_receiver = kafka_server
+        initialized_server.kafka_server = kafka_server
     else:
         # Start gRPC server
         grpc_server = start_insecure_grpc_server(
