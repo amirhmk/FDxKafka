@@ -7,8 +7,8 @@ services:
     restart: always
     container_name: zookeeper
     hostname: zookeeper
-    ports:
-      - 2181:2181
+    # ports:
+    #   - 2181:2181
     environment:
       ZOO_MY_ID: 1
 
@@ -16,12 +16,18 @@ services:
     container_name: broker
     image: wurstmeister/kafka
     ports:
-      - 9092:9092
+      - 9091:9091
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: kafka-vm
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_MESSAGE_MAX_BYTES: 2000000
       KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE : "true"
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9091
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://127.0.0.1:9091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      LOG4J_ROOT_LOGGER : DEBUG, stdout, kafkaAppender
+      LOG4J_LOGGER_KAFKA_AUTHORIZER_LOGGER : DEBUG, authorizerAppender
+      
 
   # kafka_manager:
   #   image: hlebalbau/kafka-manager:stable
