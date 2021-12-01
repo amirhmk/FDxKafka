@@ -59,6 +59,12 @@ docker-compose -f kafka_cluster/docker-compose.yml down
 ```
 Broker url is going to be 127.0.0.1:9091
 
+Read kafka server logs
+
+```
+docker logs broker -f
+```
+
 
 ## Evaluation
 
