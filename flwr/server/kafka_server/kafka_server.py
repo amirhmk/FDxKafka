@@ -89,6 +89,7 @@ class KafkaServer(StoppableThread):
             self.__startServerReceiver()
             self.__initServerMsgSender()
             self._stop_event.wait()
+            self.stopServer(grace=0)
             log(INFO, "Stopping Flower Kafka server")
     
     def __startServerReceiver(self):
@@ -119,7 +120,7 @@ class KafkaServer(StoppableThread):
 
     def stopThreads(self):
         for t in self.registered_cids:
-            t.stop()
+            self.registered_cids[t].stop()
         self.registered_cids = {} #not the best delete TODO
 
     def receiveMsgs(self):

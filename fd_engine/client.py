@@ -1,5 +1,7 @@
 import sys, os
 sys.path.insert(0, os.getcwd())
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 import numpy as np
 import flwr as fl
 from logging import INFO

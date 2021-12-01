@@ -109,11 +109,10 @@ def start_server(  # pylint: disable=too-many-arguments
     if use_kafka:
         # Stop the kafka server
         kafka_server.stop()
-        sys.exit(0)
+        # sys.exit(0)
     else:
         # Stop the gRPC server
         grpc_server.stop(grace=1)
-
 
 def _init_defaults(
     server: Optional[Server],
@@ -128,8 +127,8 @@ def _init_defaults(
         #     client_manager = KafkaClientManager()
         if strategy is None:
             strategy = FedAvg(min_fit_clients=config['min_fit_clients'],
-                              min_eval_clients=1,
-                              min_available_clients=1)
+                              min_eval_clients=config['min_eval_clients'],
+                              min_available_clients=config['min_available_clients'])
         server = Server(client_manager=client_manager, strategy=strategy)
 
     # Set default config values

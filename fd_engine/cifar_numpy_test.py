@@ -1,5 +1,6 @@
 import sys, os
 sys.path.insert(0, os.getcwd())
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 from collections import OrderedDict
 import warnings
@@ -12,6 +13,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 import yaml
+import numpy as np
 
 cfg = os.path.join(os.getcwd(), 'env.yaml')
 with open(cfg, 'r') as f:
@@ -151,5 +153,5 @@ if __name__ == "__main__":
     a.add_argument("--broker", help="host_port of kafka broker")
     args = a.parse_args()
     print(args)
-
-    main(args.broker)
+    cid = f"cifar_test_{np.random.randint(0,100)}"
+    main(args.broker, cid)
