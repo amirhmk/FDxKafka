@@ -28,10 +28,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     print(args)
-    fl.server.start_server(server_address=args.broker,
+    try:
+        fl.server.start_server(server_address=args.broker,
                             use_kafka=not args.grpc,
                             config={"num_rounds": args.numrounds, 
                                     "min_fit_clients" : args.minclients,
                                     "min_eval_clients" : args.min_eval_clients,
                                     "min_available_clients" : args.min_available_clients,
                                 })
+    except:
+        print("Error: client connection!", sys.exc_info()[1])

@@ -24,7 +24,7 @@ FLOWER_LOGGER = logging.getLogger(LOGGER_NAME)
 FLOWER_LOGGER.setLevel(logging.DEBUG)
 
 DEFAULT_FORMATTER = logging.Formatter(
-    "%(levelname)s %(name)s %(asctime)s | %(filename)s:%(lineno)d | %(message)s"
+    "%(levelname)s %(asctime)s | %(filename)s:%(lineno)d:%(threadName)s | %(message)s"
 )
 
 # Configure console logger

@@ -14,6 +14,7 @@
 # ==============================================================================
 """Implements utility function to create a grpc server."""
 from queue import Queue
+import sys
 import time
 import json
 from typing import Callable, Any, Mapping
@@ -83,14 +84,16 @@ class KafkaServer(StoppableThread):
         time.sleep(grace)
         self.thread.stop()
         self.stopThreads()
-        self.stop()
     def run(self):
-        while not self.stopped():
-            self.__startServerReceiver()
-            self.__initServerMsgSender()
-            self._stop_event.wait()
-            self.stopServer(grace=0)
-            log(INFO, "Stopping Flower Kafka server")
+        try:
+            while not self.stopped():
+                self.__startServerReceiver()
+                self.__initServerMsgSender()
+                self._stop_event.wait()
+                self.stopServer(grace=0)
+                log(INFO, "Stopping Flower Kafka server")
+        except:
+            print("Error: client connection!", sys.exc_info()[1])
     
     def __startServerReceiver(self):
         self.serverReceiver = MsgReceiver(self.server_address,
@@ -125,39 +128,43 @@ class KafkaServer(StoppableThread):
 
     def receiveMsgs(self):
         log(INFO, "Starting server receiver thread")
-        while(not self.stopped()):
-            msg = self.serverReceiver.getNextMsg(block=True, timeout=1000)
-            if self.stopped():
-                log(INFO,"Kafka server interrupted")
-                break
-            if msg is None:
-                log(DEBUG,"No message received")
-                continue
-            log(INFO,"Got new message in server receiver")
+        try:
+            while(not self.stopped()):
+                msg = self.serverReceiver.getNextMsg(block=True, timeout=1000)
+                if self.stopped():
+                    log(INFO,"Kafka server interrupted")
+                    break
+                if msg is None:
+                    log(DEBUG,"No message received")
+                    continue
+                log(INFO,"Got new message in server receiver")
 
-            #need to deserialize msg, get cid and push the msg to bridge
-            cid, clientmsg = self.getClientMessage(msg)
-            cid :str = cid
-            thread = None
-            if cid in self.registered_cids: #find running sender thread if exists and push to it
-                thread : KafkaServer.senderThread = self.registered_cids[cid]
-                if thread.stopped() or clientmsg is None: #if client is registering again. reset the pipeline
-                    log(INFO, f'Client server sender thread not running {clientmsg}')
-                    self.client_manager.unregistercid(cid)
-                    thread.stop()
-                    thread = None
+                #need to deserialize msg, get cid and push the msg to bridge
+                cid, clientmsg = self.getClientMessage(msg)
+                cid :str = cid
+                thread = None
+                if cid in self.registered_cids: #find running sender thread if exists and push to it
+                    thread : KafkaServer.senderThread = self.registered_cids[cid]
+                    if thread.stopped() or clientmsg is None: #if client is registering again. reset the pipeline
+                        log(INFO, f'Client server sender thread not running {clientmsg}')
+                        self.client_manager.unregistercid(cid)
+                        thread.stop()
+                        thread = None
 
-            if thread is None:
-                thread : KafkaServer.senderThread = self.servermsgSender(cid)
-                self.registered_cids[cid] = thread
-                thread.start()
-            if clientmsg is not None:
-                log(INFO, f"Pushing new msg to cid {cid}")
-                thread.add(clientmsg)
-                log(DEBUG, f"Done pushing msg to cid {cid}")
-            else:
-                log(INFO, f"Received registration for cid {cid}")
-        log(INFO, "Stopping server receiver thread")
+                if thread is None:
+                    thread : KafkaServer.senderThread = self.servermsgSender(cid)
+                    self.registered_cids[cid] = thread
+                    thread.start()
+                if clientmsg is not None:
+                    log(INFO, f"Pushing new msg to cid {cid}")
+                    thread.add(clientmsg)
+                    log(DEBUG, f"Done pushing msg to cid {cid}")
+                else:
+                    log(INFO, f"Received registration for cid {cid}")
+        except:
+            log(DEBUG, "Error: client connection!", sys.exc_info()[1])
+        finally:
+            log(INFO, "Stopping server receiver thread")
     
     def inputmsg(self, q):
         for msg in iter(q.get, None):

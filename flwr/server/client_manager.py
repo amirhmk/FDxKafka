@@ -14,7 +14,7 @@
 # ==============================================================================
 """Flower ClientManager."""
 
-
+import sys
 import random
 import threading
 from abc import ABC, abstractmethod
@@ -78,10 +78,18 @@ class SimpleClientManager(ClientManager):
 
         Current timeout default: 1 day.
         """
+        log(DEBUG, f"Going to wait for {num_clients}")
         with self._cv:
-            return self._cv.wait_for(
-                lambda: len(self.clients) >= num_clients, timeout=timeout
-            )
+            try:
+                return self._cv.wait_for(
+                    lambda: len(self) >= num_clients, timeout=timeout
+                )
+            except:
+                log(DEBUG, "Error: client connection!", sys.exc_info()[1])
+            finally:
+                log(DEBUG, f"Finally left after waiting for {num_clients} \
+                            clients having {len(self)} clients")
+
 
     def num_available(self) -> int:
         """Return the number of available clients."""
@@ -97,17 +105,18 @@ class SimpleClientManager(ClientManager):
         log(INFO, f"Registering cid {client.cid} in CM")
         if client.cid in self.clients:
             return False
-
+        log(DEBUG, f"Goint to add client {client.cid} with {len(self.clients)}")
         self.clients[client.cid] = client
         with self._cv:
             self._cv.notify_all()
-
+        log(DEBUG, f"Now with {len(self.clients)} clients")
         return True
     
     def unregistercid(self, cid : str) -> None:
         if cid in self.clients:
-            log(DEBUG, f'Unregistering {cid} in Simple CM')
+            log(DEBUG, f"Goint to remove client {cid}  from CM with {len(self.clients)}")
             self.unregister(self.clients[cid])
+            log(DEBUG, f"Left with {len(self.clients)} clients")
 
     def unregister(self, client: ClientProxy) -> None:
         """Unregister Flower ClientProxy instance.

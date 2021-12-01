@@ -78,7 +78,6 @@ class MsgReceiver(StoppableThread):
             self.log(INFO, f"Done getting next msg from {self.TOPIC_NAME}")
 
     def run(self):
-        self.running = True
         while not self.stopped():
             try:
                 self.log(DEBUG, 'Receiver waiting for next msg')
@@ -94,7 +93,7 @@ class MsgReceiver(StoppableThread):
         self.log(DEBUG, 'Closing connection for consumer')
         self.stop()
         self.consumer.close()
-        self.running = False
+        self.stop()
 
 if __name__ == "__main__":
     #start receiver in a new thread
