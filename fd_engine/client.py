@@ -49,10 +49,8 @@ def main(client_id, broker=None, channel='kafka'):
     m = model.create_keras_model()
     m.compile("adam", "binary_crossentropy", metrics=["accuracy"])
     (x_train, y_train), (x_test, y_test) = dataset.load_partition(np.random.randint(0,10))
-    fl.client.start_kafka_client(broker, client=CifarClient(m, x_train, y_train, x_test, y_test),
-                                clientid=client_id)
-
     client = CifarClient(m, x_train, y_train, x_test, y_test)
+
     if channel == "kafka":
         fl.client.start_kafka_client(broker, client=client, clientid=client_id)
     else:
@@ -60,4 +58,4 @@ def main(client_id, broker=None, channel='kafka'):
 
 
 if __name__ == "__main__":
-    main(2)
+    main(client_id=None)
