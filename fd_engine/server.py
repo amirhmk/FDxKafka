@@ -18,10 +18,10 @@ if __name__ == "__main__":
                     required=False, default=1, type=int)
     parser.add_argument("--numrounds", help="minimum number of training rounds",
                     required=False, default=3, type=int)
-    parser.add_argument("--kafka", help="Use Kafka as Network Channel. Default TRUE",
-                    required=False, default=True, type=bool)
+    parser.add_argument("--grpc", help="Use gRPC as Network Channel. Default False",
+                    required=False, default=False, type=bool, action='store_true')
     args = parser.parse_args()
     print(args)
     fl.server.start_server(server_address=args.broker, 
                         config={"num_rounds": args.numrounds, "min_fit_clients" : args.minclients,
-                                "use_kafka" : args.kafka})
+                                "use_kafka" : not args.grpc})
