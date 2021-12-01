@@ -91,7 +91,23 @@ In our evaluation, we measure the following for each of `gRPC` and `kafka` chann
   This terminal window will report the above metrics.
 
 ### Results
-Insert results here
+
+#### gRPC
+```
+Total time: FL finished in 178.52631062400178
+Training start time: 22:35:15,361
+Training end time: 22:35:28
+Total training time: 13s
+```
+
+#### Kafka
+
+```
+Total time: FL finished in ?
+Training start time: ?
+Training end time: ?
+Total training time: ?
+```
 
 ### Cloud functions
 
