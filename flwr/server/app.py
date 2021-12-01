@@ -25,25 +25,26 @@ from flwr.server.kafka_server.kafka_server import start_kafka_receiver
 from flwr.server.grpc_server.grpc_server import start_insecure_grpc_server
 from flwr.server.server import Server
 from flwr.server.strategy import FedAvg, Strategy
+from flwr.server.kafka_server.kafka_server import KafkaServer
 
-USE_KAFKA = True
+DEFAULT_USE_KAFKA = True
 SERVER_TOPIC = "FLserver"
 
-if not USE_KAFKA:
-    DEFAULT_SERVER_ADDRESS = "[::]:8080"
-    MAX_MESSAGE_LENGTH = GRPC_MAX_MESSAGE_LENGTH
-else:
-    DEFAULT_SERVER_ADDRESS = "localhost:9092"
-    MAX_MESSAGE_LENGTH = KAFKA_MAX_MESSAGE_LENGTH
+GRPC_DEFAULT_SERVER_ADDRESS = "[::]:8080"
+GRPC_MAX_MESSAGE_LENGTH = GRPC_MAX_MESSAGE_LENGTH
+
+KAFKA_DEFAULT_SERVER_ADDRESS = "localhost:9092"
+KAFKA_MAX_MESSAGE_LENGTH = KAFKA_MAX_MESSAGE_LENGTH
 
 
 def start_server(  # pylint: disable=too-many-arguments
-    server_address: str = DEFAULT_SERVER_ADDRESS,
+    server_address: str = GRPC_DEFAULT_SERVER_ADDRESS,
     server: Optional[Server] = None,
     config: Optional[Dict[str, int]] = None,
     strategy: Optional[Strategy] = None,
-    max_message_length: int = MAX_MESSAGE_LENGTH,
+    max_message_length: int = GRPC_MAX_MESSAGE_LENGTH,
     force_final_distributed_eval: bool = False,
+    use_kafka : bool = DEFAULT_USE_KAFKA
 ) -> None:
     """Start a Flower server using the Kafka transport layer.
 
@@ -77,9 +78,10 @@ def start_server(  # pylint: disable=too-many-arguments
     """
     initialized_server, initialized_config = _init_defaults(server, config, strategy)
 
-    if USE_KAFKA:
+    if use_kafka:
         # Start server
-        kafka_server = start_kafka_receiver(client_manager=initialized_server.client_manager(),
+        max_message_length = KAFKA_MAX_MESSAGE_LENGTH
+        kafka_server : KafkaServer = start_kafka_receiver(client_manager=initialized_server.client_manager(),
             server_address=server_address,
             max_message_length=max_message_length,
             topic_name = SERVER_TOPIC)
@@ -103,7 +105,7 @@ def start_server(  # pylint: disable=too-many-arguments
         force_final_distributed_eval=force_final_distributed_eval,
     )
 
-    if USE_KAFKA:
+    if use_kafka:
         # Stop the kafka server
         kafka_server.stop()
         sys.exit(0)

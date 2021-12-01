@@ -16,19 +16,23 @@ pip install -r requirements.txt
 
 ### Start the server
 
-
 ```
 python fd_engine/server.py --broker 10.138.0.6:9092 --numrounds 3
 ```
-Usage: server.py [-h] [--broker BROKER] [--minclients MINCLIENTS]
-                 [--numrounds NUMROUNDS]
 
 ```
-Optional arguments:
-  -h, --help      show this help message and exit
-  --broker        host:port of kafka broker
-  --minclients    minimum number of clients for training
-  --numrounds     minimum number of training rounds
+Usage: server.py [-h] [--broker BROKER] [--minclients MINCLIENTS]
+                 [--numrounds NUMROUNDS] [--kafka KAFKA]
+
+Arguments:
+  -h, --help            show this help message and exit
+  --broker BROKER       host_port of kafka broker
+  --minclients MINCLIENTS
+                        minimum number of clients for training
+  --numrounds NUMROUNDS
+                        minimum number of training rounds
+  --kafka KAFKA         Use Kafka as Network Channel. Default TRUE
+
 ```
 
 ### Start training on the client
