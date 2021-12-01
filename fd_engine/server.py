@@ -19,7 +19,7 @@ if __name__ == "__main__":
     parser.add_argument("--numrounds", help="minimum number of training rounds",
                     required=False, default=3, type=int)
     parser.add_argument("--grpc", help="Use gRPC as Network Channel. Default False",
-                    required=False, default=False, type=bool, action='store_true')
+                    required=False, default=False, action='store_true')
     args = parser.parse_args()
     print(args)
     fl.server.start_server(server_address=args.broker, 

@@ -22,7 +22,7 @@ python fd_engine/server.py --broker 10.138.0.6:9092 --numrounds 3
 
 ```
 Usage: server.py [-h] [--broker BROKER] [--minclients MINCLIENTS]
-                 [--numrounds NUMROUNDS] [--kafka KAFKA]
+                 [--numrounds NUMROUNDS] [--grpc]
 
 Arguments:
   -h, --help            show this help message and exit
@@ -31,7 +31,8 @@ Arguments:
                         minimum number of clients for training
   --numrounds NUMROUNDS
                         minimum number of training rounds
-  --kafka KAFKA         Use Kafka as Network Channel. Default TRUE
+  --grpc                Use gRPC as Network Channel. Default False
+
 
 ```
 
