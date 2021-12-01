@@ -60,6 +60,15 @@ gcloud functions deploy kafkaclient --trigger-http --allow-unauthenticated --run
 
 Entrypoint will be the `handler` function in `main.py`.
 
+Testing parameters in JSON format are as follows:
+```
+{
+  "broker" : "34.105.38.178:9091",
+  "client_id" : "12345",
+  "channel" : "kafka"
+}
+```
+
 ## Logs
 
 
