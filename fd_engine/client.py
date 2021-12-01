@@ -38,11 +38,9 @@ class CifarClient(fl.client.NumPyClient):
         return loss, len(self.x_test), {"accuracy": accuracy}
 
 
-def main(client_id, broker=None):
+def main(client_id, broker=None, channel='kafka'):
     """Create model, load data, define Flower client, start Flower client."""
     # Start client
-    # SERVER_ADDRESS = "10.138.0.6:9092"
-#     SERVER_ADDRESS = "10.138.0.6:9092"
     SERVER_ADDRESS = "34.105.38.178:9091"
     if broker is None:
 	    broker = SERVER_ADDRESS
@@ -53,6 +51,12 @@ def main(client_id, broker=None):
     (x_train, y_train), (x_test, y_test) = dataset.load_partition(np.random.randint(0,10))
     fl.client.start_kafka_client(broker, client=CifarClient(m, x_train, y_train, x_test, y_test),
                                 clientid=client_id)
+
+    client = CifarClient(m, x_train, y_train, x_test, y_test)
+    if channel == "kafka":
+        fl.client.start_kafka_client(broker, client=client, clientid=client_id)
+    else:
+        fl.client.start_client(broker, client=client)
 
 
 if __name__ == "__main__":
