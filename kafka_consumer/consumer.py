@@ -35,8 +35,8 @@ class MsgReceiver(StoppableThread):
                                 # sasl_plain_password = self.KAFKA_PASSWORD,
                                 security_protocol = "PLAINTEXT",
                                 auto_offset_reset = "latest",
-                                group_id = options['cid'],
-                                client_id = options['cid'],
+                                group_id = str(options['cid']),
+                                client_id = str(options['cid']),
                                 api_version = (0, 9)
                                 # sasl_mechanism = self.sasl_mechanism
                                 )
@@ -85,8 +85,8 @@ class MsgReceiver(StoppableThread):
                 for msg in self.consumer:
                     self.log(DEBUG, 'Got new msg!')
                     self.q.put(msg.value)
-            except:
-                self.log(DEBUG, 'Receiver thread interrupted')
+            except Exception as e:
+                self.log(DEBUG, 'Receiver thread interrupted', e)
             if self.stopped():
                 break
         self.log(DEBUG, 'Receiver thread stopped')

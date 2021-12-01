@@ -16,8 +16,14 @@ pip install -r requirements.txt
 
 ### Start the server
 
+#### Kafka:
 ```
-python fd_engine/server.py --broker 10.138.0.6:9092 --numrounds 3
+python fd_engine/server.py --numrounds 3 --broker 10.138.0.6:9092
+```
+
+#### gRPC
+```
+python fd_engine/server.py --grpc --numrounds 3 --broker "[::]:8080"
 ```
 
 ```
@@ -25,15 +31,13 @@ Usage: server.py [-h] [--broker BROKER] [--minclients MINCLIENTS]
                  [--numrounds NUMROUNDS] [--grpc]
 
 Arguments:
-  -h, --help            show this help message and exit
-  --broker BROKER       host_port of kafka broker
+  -h, --help            Show this help message and exit
+  --broker BROKER       Address of server
   --minclients MINCLIENTS
-                        minimum number of clients for training
+                        Minimum number of clients for training
   --numrounds NUMROUNDS
                         minimum number of training rounds
-  --grpc                Use gRPC as Network Channel. Default False
-
-
+  --grpc                Use gRPC as network channel. Default False
 ```
 
 ### Start training on the client
