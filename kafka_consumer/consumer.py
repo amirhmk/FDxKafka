@@ -37,9 +37,11 @@ class MsgReceiver(StoppableThread):
                                 auto_offset_reset = "earliest",
                                 group_id = str(options['cid']),
                                 client_id = str(options['cid']),
-                                api_version = (0, 9)
+                                api_version = (0, 9),
+                                debug = "generic, broker, topic, metadata"
                                 # sasl_mechanism = self.sasl_mechanism
                                 )
+                                
         self.q = queue.Queue()
         self.daemon = True
 
