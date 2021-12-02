@@ -68,9 +68,13 @@ class SimpleClientManager(ClientManager):
     def __init__(self) -> None:
         self.clients: Dict[str, ClientProxy] = {}
         self._cv = threading.Condition()
-
+        self.threadLock = threading.Lock()
     def __len__(self) -> int:
-        return len(self.clients)
+        try:
+            self.threadLock.acquire()
+            return len(self.clients)
+        finally:
+            self.threadLock.release()
 
     def wait_for(self, num_clients: int, timeout: int = 86400) -> bool:
         """Block until at least `num_clients` are available or until a timeout
@@ -106,7 +110,11 @@ class SimpleClientManager(ClientManager):
         if client.cid in self.clients:
             return False
         log(DEBUG, f"Goint to add client {client.cid} with {len(self.clients)}")
-        self.clients[client.cid] = client
+        try:
+            self.threadLock.acquire()
+            self.clients[client.cid] = client
+        finally:
+            self.threadLock.release()
         with self._cv:
             self._cv.notify_all()
         log(INFO, f"Number of clients after registration: {len(self.clients)}")
@@ -124,7 +132,11 @@ class SimpleClientManager(ClientManager):
         This method is idempotent.
         """
         if client.cid in self.clients:
-            del self.clients[client.cid]
+            try:
+                self.threadLock.acquire()
+                del self.clients[client.cid]
+            except:
+                self.threadLock.release()
             client.bridge.close()
             with self._cv:
                 self._cv.notify_all()
