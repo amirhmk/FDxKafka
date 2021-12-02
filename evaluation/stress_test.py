@@ -100,7 +100,6 @@ def run_with_gRPC(num_clients):
     GRPC_SERVER_ADDRESS = "35.203.161.106:8081"
     with ThreadPoolExecutor(max_workers=2) as executor:
         future_to_client = {}
-        # future_to_client[executor.submit(pool_client_cloud_function, 5, GRPC_SERVER_ADDRESS, 'gRPC')] = "CLOUD_FUNCTION"
         future_to_client[executor.submit(pool_client_local, num_clients, GRPC_SERVER_ADDRESS, 'gRPC')] = "LOCAL"
         for i, future in enumerate(concurrent.futures.as_completed(future_to_client)):
             results = future_to_client[future]
@@ -115,7 +114,16 @@ def run_with_gRPC(num_clients):
 def run_with_kafka(num_clients):
     """Runs the test with Kafka as communication channel"""
     KAFKA_SERVER_ADDRESS = "34.105.38.178:9091"
-    pool_client_cloud_function(num_clients, KAFKA_SERVER_ADDRESS, 'kafka')
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future_to_client = {}
+        future_to_client[executor.submit(pool_client_local, num_clients, KAFKA_SERVER_ADDRESS, 'kafka')] = "LOCAL"
+        for i, future in enumerate(concurrent.futures.as_completed(future_to_client)):
+            results = future_to_client[future]
+            try:
+                average_time = future.result()
+                print(f"Average Time {results}", average_time)
+            except Exception as exc:
+                print('%r generated an exception: %s' % (results, exc))
 
 
 def run_test(num_clients):
@@ -126,9 +134,9 @@ def run_test(num_clients):
     3. Total time for model to be updated on all devices
     """
     # Kafka
-    # run_with_kafka(num_clients)
+    run_with_kafka(num_clients)
     # gRPC
-    run_with_gRPC(num_clients)
+    # run_with_gRPC(num_clients)
 
 if __name__ == "__main__":
     print("Cores Available: ", mp.cpu_count())
