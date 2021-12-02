@@ -109,14 +109,14 @@ class SimpleClientManager(ClientManager):
         self.clients[client.cid] = client
         with self._cv:
             self._cv.notify_all()
-        # log(DEBUG, f"Now with {len(self.clients)} clients")
+        log(INFO, f"Number of clients after registration: {len(self.clients)}")
         return True
     
     def unregistercid(self, cid : str) -> None:
         if cid in self.clients:
             log(DEBUG, f"Goint to remove client {cid}  from CM with {len(self.clients)}")
             self.unregister(self.clients[cid])
-            # log(DEBUG, f"Left with {len(self.clients)} clients")
+            log(INFO, f"{len(self.clients)} clients left")
 
     def unregister(self, client: ClientProxy) -> None:
         """Unregister Flower ClientProxy instance.

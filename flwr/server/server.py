@@ -19,7 +19,6 @@ import concurrent.futures
 import timeit
 from logging import DEBUG, INFO, WARNING
 from typing import Dict, List, Optional, Tuple, Union
-from flwr.server.kafka_server.kafka_server import KafkaServer
 
 from flwr.common import (
     Disconnect,
@@ -289,7 +288,6 @@ class Server:
     def disconnect_all_clients(self) -> None:
         """Send shutdown signal to all clients."""
         all_clients = self._client_manager.all()
-        server : KafkaServer = self.kafka_server
         _ = shutdown(clients=[all_clients[k] for k in all_clients.keys()])
 
     def _get_initial_parameters(self) -> Parameters:

@@ -86,10 +86,7 @@ def kafka_client_connection(
     try:
         yield (receive, send)
     except:
-        if "Stop" not in sys.exc_info()[1]:
-            log(DEBUG, "Error: client connection!", sys.exc_info()[1])
-        else:
-            log(DEBUG, "Stopping client connection thread")
+        log(DEBUG, "Error: client connection!", sys.exc_info()[1])
     finally:
         # Make sure to have a final
         consumer_channel.close()
