@@ -93,7 +93,7 @@ def kafka_client_connection(
     finally:
         # Make sure to have a final
         consumer_channel.close()
-        # producer_channel.close()
+        producer_channel.close()
         # producer_channel.close()
         # log(DEBUG, "Kafca Client Closed")
 

@@ -53,6 +53,9 @@ class MsgSender:
             self.log(DEBUG, 'Done sending')
         except:
             self.log(INFO, f"Unexpected error: {sys.exc_info()}")
+    def close(self):
+        self.log(DEBUG, 'Closing kafka producer')
+        self.producer.close()
     def run(self):
         date_to = datetime.utcnow()
         parameter_1 = np.random.randint(0, 100, (3072,10))

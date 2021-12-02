@@ -290,8 +290,6 @@ class Server:
         """Send shutdown signal to all clients."""
         all_clients = self._client_manager.all()
         server : KafkaServer = self.kafka_server
-        for k in all_clients.keys():
-            server.stopClientThread(k)
         _ = shutdown(clients=[all_clients[k] for k in all_clients.keys()])
 
     def _get_initial_parameters(self) -> Parameters:

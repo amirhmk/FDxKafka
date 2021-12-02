@@ -82,6 +82,8 @@ class KafkaServer(StoppableThread):
         pass
     def stopServer(self, grace=1):
         time.sleep(grace)
+        self.server_msg_sender.close()
+        self.serverReceiver.stop()
         self.stopThreads()
         self.thread.stop()
     def run(self):
@@ -90,8 +92,8 @@ class KafkaServer(StoppableThread):
                 self.__startServerReceiver()
                 self.__initServerMsgSender()
                 self._stop_event.wait()
-                self.stopServer(grace=0)
                 log(INFO, "Stopping Flower Kafka server")
+                self.stopServer(grace=0)
         except:
             print("Client connection stopped")
     
@@ -108,7 +110,7 @@ class KafkaServer(StoppableThread):
         )
         self.servicer = fss.FlowerServiceServicer(self.client_manager)
         self.serverReceiver.start()
-        self.thread = StoppableThread(target = self.receiveMsgs, args = ())
+        self.thread = StoppableThread(name="ServerReceiverMsgThread", target = self.receiveMsgs, args = ())
         self.thread.start()
     
     def __initServerMsgSender(self):
