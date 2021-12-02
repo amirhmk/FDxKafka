@@ -26,7 +26,7 @@ FLOWER_LOGGER.setLevel(logging.DEBUG)
 import sys
 logger = logging.getLogger('kafka')
 logger.addHandler(logging.StreamHandler(sys.stdout))
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 DEFAULT_FORMATTER = logging.Formatter(
     "%(levelname)s %(asctime)s | %(filename)s:%(lineno)d:%(threadName)s | %(message)s"

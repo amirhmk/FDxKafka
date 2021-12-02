@@ -37,7 +37,8 @@ class MsgSender:
                          api_version=(0, 11, 5),
                          max_request_size=self.MAX_SIZE,
                          retries=5,
-                         max_block_ms=self.DEFAULT_TIMEOUT)
+                         max_block_ms=self.DEFAULT_TIMEOUT,
+                         request_timeout_ms=1000)
 
 
     def sendMsg(self, data, topic_name : str=None):
