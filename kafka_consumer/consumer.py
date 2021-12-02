@@ -38,7 +38,6 @@ class MsgReceiver(StoppableThread):
                                 group_id = str(options['cid']),
                                 client_id = str(options['cid']),
                                 api_version = (0, 9),
-                                debug = "generic, broker, topic, metadata"
                                 # sasl_mechanism = self.sasl_mechanism
                                 )
                                 

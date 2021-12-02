@@ -94,8 +94,8 @@ class KafkaServer(StoppableThread):
                 self._stop_event.wait()
                 log(INFO, "Stopping Flower Kafka server")
                 self.stopServer(grace=0)
-        except:
-            print("Client connection stopped")
+        except Exception as e:
+            print(f"Client connection stopped {e}")
     
     def __startServerReceiver(self):
         self.serverReceiver = MsgReceiver(self.server_address,
