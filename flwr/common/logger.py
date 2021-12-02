@@ -21,7 +21,7 @@ from typing import Any, Dict, Optional, Tuple
 # Create logger
 LOGGER_NAME = "flower"
 FLOWER_LOGGER = logging.getLogger(LOGGER_NAME)
-FLOWER_LOGGER.setLevel(logging.INFO)
+FLOWER_LOGGER.setLevel(logging.DEBUG)
 
 DEFAULT_FORMATTER = logging.Formatter(
     "%(levelname)s %(asctime)s | %(filename)s:%(lineno)d:%(threadName)s | %(message)s"
