@@ -3,6 +3,9 @@
 
 Repository for holding our PoC for a scalable Federated Learning Implementation using Kafka
 
+## Report
+Please take a look at our [written report](report.pdf) which goes in more detail about our proposal and implementation.
+
 ## Get Started
 
 
@@ -94,7 +97,7 @@ In our evaluation, we measure the following for each of `gRPC` and `kafka` chann
 
 #### gRPC
 ```
-Total time: FL finished in 178.52631062400178
+Total time: FL finished in 178.526
 Training start time: 22:35:15,361
 Training end time: 22:35:28
 Total training time: 13s
@@ -103,10 +106,10 @@ Total training time: 13s
 #### Kafka
 
 ```
-Total time: FL finished in ?
-Training start time: ?
-Training end time: ?
-Total training time: ?
+Total time: FL finished in 188.701
+Training start time: 22:46:27,791
+Training end time: 22:46:45,249
+Total training time: 18s
 ```
 
 ### Cloud functions
